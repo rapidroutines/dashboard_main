@@ -25,7 +25,7 @@ import alternateHeelTouchesImage from "@/assets/alternate-heel-touches.png"; // 
 import sidePlankImage from "@/assets/side-plank.png"; // Placeholder
 import sideObliqueRaisesImage from "@/assets/side-oblique-raises.png"; // Placeholder
 import scissorsImage from "@/assets/scissors.png"; // Placeholder
-import hipFlexorStretchImage from "@/assets/frog-pose.png"; // Placeholder
+import hipFlexorStretchImage from "@/assets/hip-flexor.png"; // Placeholder
 import downwardDogImage from "@/assets/frog-pose.png"; // Placeholder
 import worldsGreatestStretchImage from "@/assets/frog-pose.png"; // Placeholder
 import thoracicBridgeImage from "@/assets/frog-pose.png"; // Placeholder
