@@ -23,7 +23,7 @@ import frogPoseImage from "@/assets/frog-pose.png";
 import russianTwistImage from "@/assets/russian-twists.png"; // Placeholder
 import alternateHeelTouchesImage from "@/assets/alternate-heel-touches.png"; // Placeholder
 import sidePlankImage from "@/assets/side-plank.png"; // Placeholder
-import hangingLegRaiseImage from "@/assets/frog-pose.png"; // Placeholder
+import sideObliqueRaisesImage from "@/assets/side-oblique-raises.png"; // Placeholder
 import sidePlankRotationImage from "@/assets/frog-pose.png"; // Placeholder
 import hipFlexorStretchImage from "@/assets/frog-pose.png"; // Placeholder
 import downwardDogImage from "@/assets/frog-pose.png"; // Placeholder
@@ -199,11 +199,11 @@ const exercises = [
     },
     {
         id: 20,
-        title: "Hanging Leg Raise",
+        title: "Side Oblique Raises",
         category: "core",
-        description: "An advanced exercise that targets the lower abdominals and hip flexors by lifting the legs while hanging from a bar.",
-        difficulty: 3,
-        image: hangingLegRaiseImage
+        description: "A core exercise that strengthens the obliques by lifting the torso sideways.",
+        difficulty: 1,
+        image: sideObliqueRaisesImage
     },
     {
         id: 21,
