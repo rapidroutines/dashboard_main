@@ -20,7 +20,7 @@ import frogPoseImage from "@/assets/frog-pose.png";
 
 // Import placeholders for new exercise images
 // Note: You would replace these with actual image imports when available
-import russianTwistImage from "@/assets/frog-pose.png"; // Placeholder
+import russianTwistImage from "@/assets/russian-twists.png"; // Placeholder
 import bicycleCrunchImage from "@/assets/frog-pose.png"; // Placeholder
 import deadBugImage from "@/assets/frog-pose.png"; // Placeholder
 import hangingLegRaiseImage from "@/assets/frog-pose.png"; // Placeholder
