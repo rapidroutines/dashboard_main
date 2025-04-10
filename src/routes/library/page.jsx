@@ -209,7 +209,7 @@ const exercises = [
         id: 21,
         title: "Scissors",
         category: "core",
-        description: "A core and hip workout where you lie on your back and alternate raising and lowering your legs in a crisscross "scissor" motion, keeping them straight and off the ground.",
+        description: "A core and hip workout where you lie on your back and alternate raising and lowering your legs in a crisscross 'scissor' motion, keeping them straight and off the ground.",
         difficulty: 1,
         image: scissorsImage
     },
