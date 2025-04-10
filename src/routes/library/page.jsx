@@ -23,7 +23,7 @@ import frogPoseImage from "@/assets/frog-pose.png";
 import russianTwistImage from "@/assets/russian-twists.png"; // Placeholder
 import alternateHeelTouchesImage from "@/assets/alternate-heel-touches.png"; // Placeholder
 import sidePlankImage from "@/assets/side-plank.png"; // Placeholder
-import sideObliqueRaisesImage from "@/assets/oblique-side-raises.png"; // Placeholder
+import sideObliqueRaisesImage from "@/assets/side-oblique-raises.png"; // Placeholder
 import sidePlankRotationImage from "@/assets/frog-pose.png"; // Placeholder
 import hipFlexorStretchImage from "@/assets/frog-pose.png"; // Placeholder
 import downwardDogImage from "@/assets/frog-pose.png"; // Placeholder
