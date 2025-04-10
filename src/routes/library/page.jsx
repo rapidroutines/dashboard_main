@@ -22,7 +22,7 @@ import frogPoseImage from "@/assets/frog-pose.png";
 // Note: You would replace these with actual image imports when available
 import russianTwistImage from "@/assets/russian-twists.png"; // Placeholder
 import alternateHeelTouchesImage from "@/assets/alternate-heel-touches.png"; // Placeholder
-import deadBugImage from "@/assets/frog-pose.png"; // Placeholder
+import sidePlankImage from "@/assets/side-plank.png"; // Placeholder
 import hangingLegRaiseImage from "@/assets/frog-pose.png"; // Placeholder
 import sidePlankRotationImage from "@/assets/frog-pose.png"; // Placeholder
 import hipFlexorStretchImage from "@/assets/frog-pose.png"; // Placeholder
@@ -191,11 +191,11 @@ const exercises = [
     },
     {
         id: 19,
-        title: "Dead Bug",
+        title: "Side Plank",
         category: "core",
-        description: "A beginner-friendly exercise that focuses on core stability and coordination while protecting the lower back.",
+        description: "A core-strengthening exercise that targets the obliques, shoulders, and hips by holding the body in a straight line on one side using the forearm or hand for support.",
         difficulty: 1,
-        image: deadBugImage
+        image: sidePlankImage
     },
     {
         id: 20,
