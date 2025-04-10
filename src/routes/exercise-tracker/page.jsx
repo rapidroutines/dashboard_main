@@ -6,7 +6,6 @@ const ExerciseTrackerPage = () => {
     
     return (
         <div className="flex flex-col gap-y-4">
-            {/* Header */}
             <div className="flex items-center mb-2">
                 <div className="flex items-center gap-3">
                     <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[#1e628c] text-white">
@@ -19,16 +18,13 @@ const ExerciseTrackerPage = () => {
                 </div>
             </div>
             
-            {/* Embedded Tracker without border */}
             <div className="relative bg-white rounded-lg shadow-sm overflow-hidden h-[calc(100vh-150px)]">
-                {/* Loading State */}
                 {isLoading && (
                     <div className="absolute inset-0 flex items-center justify-center bg-white/80 z-10">
                         <div className="h-12 w-12 rounded-full border-4 border-[#1e628c]/30 border-t-[#1e628c] animate-spin"></div>
                     </div>
                 )}
                 
-                {/* Fixed height iframe container to prevent main page scrolling */}
                 <div className="w-full h-full">
                     <iframe 
                         src="https://exercise-tracker-tau.vercel.app" 
