@@ -12,7 +12,6 @@ export const Header = ({ collapsed, setCollapsed }) => {
                 >
                     <ChevronsLeft className={collapsed ? "rotate-180" : ""} />
                 </button>
-                {/* Search bar removed */}
             </div>
             <div className="flex items-center gap-x-3">
                 <button className="size-10 overflow-hidden rounded-full">
