@@ -6,9 +6,7 @@ const RepBotPage = () => {
 
     return (
         <div className="flex flex-col h-[calc(100vh-60px)]">
-            {/* Full-height container for the iframe */}
             <div className="relative flex-1 w-full overflow-hidden bg-white dark:bg-slate-950 rounded-lg shadow-sm">
-                {/* Loading overlay */}
                 {isLoading && (
                     <div className="absolute inset-0 flex items-center justify-center bg-white/80 dark:bg-slate-950/80 z-10">
                         <div className="flex flex-col items-center">
@@ -18,7 +16,6 @@ const RepBotPage = () => {
                     </div>
                 )}
                 
-                {/* RepBot iframe - with matching border radius */}
                 <iframe 
                     src="https://render-repbot.vercel.app/" 
                     className="w-full h-full border-0"
