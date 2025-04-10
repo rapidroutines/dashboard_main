@@ -49,7 +49,7 @@ export const navbarLinks = [
         path: "/exercise-tracker",
       },
       {
-        label: "Rapidtree",
+        label: "RapidTree",
         icon: TreePine,
         path: "/rapidtree",
       },
