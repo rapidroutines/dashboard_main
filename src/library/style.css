@@ -138,7 +138,7 @@ header p {
 }
 
 .cardio .exercise-category {
-    background-color: #f97316; /* Orange */
+    background-color: #f97316; 
 }
 
 .exercise-content {
@@ -214,44 +214,10 @@ header p {
     }
 }
 
-/* Dark mode toggle */
-.theme-toggle {
-    position: absolute;
-    right: 20px;
-    top: 20px;
-    background: none;
-    border: none;
-    cursor: pointer;
-    font-size: 1.5rem;
-}
+
 
 .hidden {
     display: none;
 }
 
-/* Dark mode */
-body.dark-mode {
-    background-color: #0f172a;
-    color: white;
-}
 
-body.dark-mode header h1 {
-    color: white;
-}
-
-body.dark-mode .exercise-card {
-    background-color: #1e293b;
-}
-
-body.dark-mode .exercise-title {
-    color: white;
-}
-
-body.dark-mode .exercise-desc {
-    color: #cbd5e1;
-}
-
-body.dark-mode .filter-btn {
-    background-color: #1e293b;
-    color: white;
-}
