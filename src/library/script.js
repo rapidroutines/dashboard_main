@@ -1,211 +1,398 @@
-// Exercise data
+import { useState, useEffect } from "react";
+import { Footer } from "@/layouts/footer";
+import { cn } from "@/utils/cn";
+import pushUpsImage from "@/assets/pseudo-planche-push-ups.png";
+import declinepushUpsImage from "@/assets/decline-push-ups.png";
+import pistolSquatsImage from "@/assets/pistol-squats.png";
+import hollowbodyHoldImage from "@/assets/hollow-body-hold.png";
+import straddlePlancheImage from "@/assets/straddle-planche.png";
+import dragonFlagImage from "@/assets/dragon-flag.png";
+import cossackSquatHoldImage from "@/assets/cossack-squat-hold.png";
+import deadHangImage from "@/assets/dead-hang.png";
+import lsitImage from "@/assets/l-sit.png";
+import chestsStretchImage from "@/assets/chest-stretch.png";
+import straightarmBackwardsStretchImage from "@/assets/straight-arm-backwards-stretch.png";
+import supinatedPushUpsImage from "@/assets/supinated-push-ups.png";
+import benchDipsImage from "@/assets/bench-dips.png";
+import frontLeverImage from "@/assets/front-lever.png";
+import plancheLeanImage from "@/assets/planche-lean.png";
+import frogPoseImage from "@/assets/frog-pose.png";
+
+// Import placeholders for new exercise images
+// Note: You would replace these with actual image imports when available
+import russianTwistImage from "@/assets/hollow-body-hold.png"; // Placeholder
+import bicycleCrunchImage from "@/assets/hollow-body-hold.png"; // Placeholder
+import deadBugImage from "@/assets/hollow-body-hold.png"; // Placeholder
+import hangingLegRaiseImage from "@/assets/dragon-flag.png"; // Placeholder
+import sidePlankRotationImage from "@/assets/hollow-body-hold.png"; // Placeholder
+import hipFlexorStretchImage from "@/assets/cossack-squat-hold.png"; // Placeholder
+import downwardDogImage from "@/assets/straight-arm-backwards-stretch.png"; // Placeholder
+import worldsGreatestStretchImage from "@/assets/cossack-squat-hold.png"; // Placeholder
+import thoracicBridgeImage from "@/assets/chest-stretch.png"; // Placeholder
+import ninetyNinetyHipStretchImage from "@/assets/cossack-squat-hold.png"; // Placeholder
+
+// Exercise data with added core and mobility exercises
 const exercises = [
     {
         id: 1,
-        title: "Push-ups",
+        title: "Pseudo Planche Push-up",
         category: "calisthenics",
         description: "A compound exercise that works the chest, shoulders, triceps, and core muscles.",
         difficulty: 2,
-        image: "https://via.placeholder.com/300x180?text=Push-ups"
+        image: pushUpsImage  
     },
     {
         id: 2,
-        title: "Pull-ups",
+        title: "Decline Push-up",
         category: "calisthenics",
-        description: "An upper body exercise that targets the back, biceps, and shoulders for building strength.",
-        difficulty: 3,
-        image: "https://via.placeholder.com/300x180?text=Pull-ups"
+        description: "An upper body exercise that targets the chest and triceps.",
+        difficulty: 1,
+        image: declinepushUpsImage
     },
     {
         id: 3,
-        title: "Bodyweight Squats",
+        title: "Pistol Squats",
         category: "calisthenics",
         description: "A lower body exercise focusing on the quadriceps, hamstrings, and glutes.",
-        difficulty: 1,
-        image: "https://via.placeholder.com/300x180?text=Bodyweight+Squats"
+        difficulty: 2,
+        image: pistolSquatsImage
     },
     {
         id: 4,
-        title: "Dips",
-        category: "calisthenics",
-        description: "Targets the triceps, chest, and shoulders while improving upper body strength.",
-        difficulty: 3,
-        image: "https://via.placeholder.com/300x180?text=Dips"
+        title: "Hollow Body Hold",
+        category: "core",
+        description: "A core exercise that targets the mid and low abdominals.",
+        difficulty: 1,
+        image: hollowbodyHoldImage
     },
     {
         id: 5,
-        title: "Plank",
+        title: "Straddle Planche",
         category: "calisthenics",
-        description: "An isometric core strength exercise that involves maintaining a position similar to a push-up.",
-        difficulty: 2,
-        image: "https://via.placeholder.com/300x180?text=Plank"
+        description: "An isometric planche progression that requires tremendous strength ",
+        difficulty: 3,
+        image: straddlePlancheImage
     },
     {
         id: 6,
-        title: "Hip Flexor Stretch",
-        category: "mobility",
-        description: "Improves hip flexibility and helps alleviate lower back pain caused by tight hip flexors.",
-        difficulty: 1,
-        image: "https://via.placeholder.com/300x180?text=Hip+Flexor+Stretch"
+        title: "Dragon Flag",
+        category: "core",
+        description: "A core exercise that targets the rectus abdominis, obliques, and transverse abdominis.",
+        difficulty: 3,
+        image: dragonFlagImage
     },
     {
         id: 7,
-        title: "Shoulder Dislocates",
+        title: "Cossack Squat Hold",
         category: "mobility",
-        description: "Enhances shoulder mobility and stability using a resistance band or stick.",
-        difficulty: 2,
-        image: "https://via.placeholder.com/300x180?text=Shoulder+Dislocates"
+        description: "A deep lateral squat shifting weight from one leg to the other.",
+        difficulty: 1,
+        image: cossackSquatHoldImage
     },
     {
         id: 8,
-        title: "Deep Squat Hold",
+        title: "Dead Hangs",
         category: "mobility",
-        description: "Improves ankle, knee, and hip mobility while strengthening the lower body.",
-        difficulty: 2,
-        image: "https://via.placeholder.com/300x180?text=Deep+Squat+Hold"
+        description: "A grip-strength exercise where you hang from a bar with arms fully extended.",
+        difficulty: 1,
+        image: deadHangImage
     },
     {
         id: 9,
-        title: "Thoracic Bridge",
-        category: "mobility",
-        description: "Enhances thoracic spine mobility and opens up the chest for better posture.",
-        difficulty: 3,
-        image: "https://via.placeholder.com/300x180?text=Thoracic+Bridge"
+        title: "L sit",
+        category: "calisthenics",
+        description: "A core-intensive hold where you support yourself on parallel bars or the floor with legs extended straight in front",
+        difficulty: 2,
+        image: lsitImage
     },
     {
         id: 10,
-        title: "Wrist Circles",
+        title: "One Arm Chest Stretch",
         category: "mobility",
-        description: "Improves wrist mobility and circulation, helping to prevent wrist pain during exercises.",
+        description: "A stretch where one arm is extended against a wall or surface to open up the chest and shoulders.",
         difficulty: 1,
-        image: "https://via.placeholder.com/300x180?text=Wrist+Circles"
+        image: chestsStretchImage
     },
     {
         id: 11,
-        title: "Jumping Jacks",
-        category: "cardio",
-        description: "A full-body exercise that raises heart rate and improves coordination.",
+        title: "Straight Arm Backwards Stretch",
+        category: "mobility",
+        description: "A stretch where you extend your arms straight back to open the chest and shoulders.",
         difficulty: 1,
-        image: "https://via.placeholder.com/300x180?text=Jumping+Jacks"
+        image: straightarmBackwardsStretchImage
     },
     {
         id: 12,
-        title: "Mountain Climbers",
-        category: "cardio",
-        description: "A dynamic exercise that works the core, arms, and legs while elevating heart rate.",
-        difficulty: 2,
-        image: "https://via.placeholder.com/300x180?text=Mountain+Climbers"
+        title: "Supinated Push Ups",
+        category: "calisthenics",
+        description: "A push-up variation where your hands are turned palms-up, engaging the biceps and wrists more.",
+        difficulty: 1,
+        image: supinatedPushUpsImage
     },
     {
         id: 13,
-        title: "Burpees",
-        category: "cardio",
-        description: "A challenging full-body exercise that boosts cardiovascular fitness and burns calories.",
-        difficulty: 3,
-        image: "https://via.placeholder.com/300x180?text=Burpees"
+        title: "Bench Dips",
+        category: "calisthenics",
+        description: "A triceps-focused exercise where you lower and raise your body using a bench for support.",
+        difficulty: 1,
+        image: benchDipsImage
     },
     {
         id: 14,
-        title: "High Knees",
-        category: "cardio",
-        description: "A running-in-place exercise that increases heart rate and works the core and legs.",
-        difficulty: 2,
-        image: "https://via.placeholder.com/300x180?text=High+Knees"
+        title: "Front Lever",
+        category: "calisthenics",
+        description: "A full-body strength hold where you hang from a bar and keep your body straight and horizontal.",
+        difficulty: 3,
+        image: frontLeverImage
     },
     {
         id: 15,
-        title: "Jump Rope",
-        category: "cardio",
-        description: "An effective cardio exercise that improves coordination, rhythm, and endurance.",
+        title: "Planche Lean",
+        category: "calisthenics",
+        description: "A strength exercise where you lean forward in a push-up position, shifting weight onto your hands to build planche strength.",
+        difficulty: 1,
+        image: plancheLeanImage
+    },
+    {
+        id: 16,
+        title: "Frog Pose",
+        category: "calisthenics",
+        description: "A deep hip-opening stretch where you rest on your hands or forearms with knees wide apart.",
+        difficulty: 1,
+        image: frogPoseImage
+    },
+    // NEW CORE EXERCISES
+    {
+        id: 17,
+        title: "Russian Twist",
+        category: "core",
+        description: "A rotational exercise that targets the obliques and abdominal muscles by twisting the torso from side to side.",
+        difficulty: 1,
+        image: russianTwistImage
+    },
+    {
+        id: 18,
+        title: "Bicycle Crunch",
+        category: "core",
+        description: "A dynamic core exercise that engages the entire abdominal region, especially the obliques, through a cycling motion.",
+        difficulty: 1,
+        image: bicycleCrunchImage
+    },
+    {
+        id: 19,
+        title: "Dead Bug",
+        category: "core",
+        description: "A beginner-friendly exercise that focuses on core stability and coordination while protecting the lower back.",
+        difficulty: 1,
+        image: deadBugImage
+    },
+    {
+        id: 20,
+        title: "Hanging Leg Raise",
+        category: "core",
+        description: "An advanced exercise that targets the lower abdominals and hip flexors by lifting the legs while hanging from a bar.",
+        difficulty: 3,
+        image: hangingLegRaiseImage
+    },
+    {
+        id: 21,
+        title: "Side Plank Rotation",
+        category: "core",
+        description: "A challenging variation of the side plank that adds rotational movement to engage the obliques and improve core stability.",
         difficulty: 2,
-        image: "https://via.placeholder.com/300x180?text=Jump+Rope"
+        image: sidePlankRotationImage
+    },
+    // NEW MOBILITY EXERCISES
+    {
+        id: 22,
+        title: "Hip Flexor Stretch",
+        category: "mobility",
+        description: "A stretch targeting the hip flexors to improve hip extension, reduce lower back pain, and enhance posture.",
+        difficulty: 1,
+        image: hipFlexorStretchImage
+    },
+    {
+        id: 23,
+        title: "Downward Dog",
+        category: "mobility",
+        description: "A yoga pose that stretches the shoulders, hamstrings, calves, and arches of the feet while strengthening the arms and legs.",
+        difficulty: 1,
+        image: downwardDogImage
+    },
+    {
+        id: 24,
+        title: "World's Greatest Stretch",
+        category: "mobility",
+        description: "A comprehensive mobility exercise that targets hips, thoracic spine, and shoulders in one fluid sequence.",
+        difficulty: 2,
+        image: worldsGreatestStretchImage
+    },
+    {
+        id: 25,
+        title: "Thoracic Bridge",
+        category: "mobility",
+        description: "An intermediate level mobility exercise that opens the chest and improves thoracic spine extension and shoulder mobility.",
+        difficulty: 2,
+        image: thoracicBridgeImage
+    },
+    {
+        id: 26,
+        title: "90/90 Hip Stretch",
+        category: "mobility",
+        description: "A stretch that targets both internal and external hip rotation simultaneously, improving hip mobility in all directions.",
+        difficulty: 2,
+        image: ninetyNinetyHipStretchImage
     }
 ];
 
-// Function to render exercise cards
-function renderExercises(category = 'all') {
-    const exerciseGrid = document.getElementById('exerciseGrid');
-    exerciseGrid.innerHTML = '';
+// Custom color variable for the requested blue shade
+const customBlue = "#1e628c";
 
-    const filteredExercises = category === 'all' 
-        ? exercises 
-        : exercises.filter(exercise => exercise.category === category);
-
-    filteredExercises.forEach(exercise => {
-        const card = document.createElement('div');
-        card.classList.add('exercise-card', exercise.category);
-
-        // Create difficulty dots based on level
-        let difficultyDots = '';
-        for (let i = 1; i <= 3; i++) {
-            difficultyDots += `<span class="difficulty-level ${i <= exercise.difficulty ? 'active' : ''}"></span>`;
-        }
-
-        // Map difficulty level to text
-        let difficultyText = '';
-        switch(exercise.difficulty) {
-            case 1:
-                difficultyText = 'Beginner';
-                break;
-            case 2:
-                difficultyText = 'Intermediate';
-                break;
-            case 3:
-                difficultyText = 'Advanced';
-                break;
-        }
-
-        card.innerHTML = `
-            <div class="exercise-img" style="background-image: url('${exercise.image}')">
-                <span class="exercise-category">${exercise.category}</span>
-            </div>
-            <div class="exercise-content">
-                <h3 class="exercise-title">${exercise.title}</h3>
-                <p class="exercise-desc">${exercise.description}</p>
-                <div class="exercise-meta">
-                    <div class="difficulty">
-                        ${difficultyDots}
-                        <span class="difficulty-text">${difficultyText}</span>
-                    </div>
-                </div>
-                <a href="#" class="exercise-btn">View Details</a>
-            </div>
-        `;
-
-        exerciseGrid.appendChild(card);
-    });
-}
-
-// Initialize with all exercises
-document.addEventListener('DOMContentLoaded', () => {
-    renderExercises();
-
-    // Add filter functionality
-    const filterButtons = document.querySelectorAll('.filter-btn');
-    filterButtons.forEach(button => {
-        button.addEventListener('click', () => {
-            // Remove active class from all buttons
-            filterButtons.forEach(btn => btn.classList.remove('active'));
-            
-            // Add active class to clicked button
-            button.classList.add('active');
-            
-            // Filter exercises
-            const filter = button.getAttribute('data-filter');
-            renderExercises(filter);
-        });
-    });
-
-    // Dark mode toggle
-    const themeToggle = document.getElementById('themeToggle');
-    themeToggle.addEventListener('click', () => {
-        document.body.classList.toggle('dark-mode');
-        
-        // Change icon based on theme
-        if (document.body.classList.contains('dark-mode')) {
-            themeToggle.textContent = '☀️';
+const LibraryPage = () => {
+    const [activeCategory, setActiveCategory] = useState('all');
+    const [filteredExercises, setFilteredExercises] = useState(exercises);
+    
+    // Update document title for better SEO and user experience
+    useEffect(() => {
+        document.title = "RapidRoutines - Exercise Library";
+    }, []);
+    
+    useEffect(() => {
+        // Filter exercises based on active category
+        if (activeCategory === 'all') {
+            setFilteredExercises(exercises);
         } else {
-            themeToggle.textContent = '🌙';
+            setFilteredExercises(exercises.filter(exercise => exercise.category === activeCategory));
         }
-    });
-});
+    }, [activeCategory]);
+
+    return (
+        <div className="flex flex-col gap-y-4">
+            <div className="flex items-center justify-between">
+                <h1 className="title">Exercise Library</h1>
+            </div>
+
+            <div className="flex justify-center flex-wrap gap-4 mb-4">
+                <button 
+                    onClick={() => setActiveCategory('all')}
+                    className={cn(
+                        "px-4 py-2 rounded-full text-sm font-semibold transition-colors",
+                        activeCategory === 'all' 
+                            ? "bg-[#1e628c] text-white" 
+                            : "bg-white text-slate-700 hover:bg-slate-100"
+                    )}
+                    style={{ backgroundColor: activeCategory === 'all' ? customBlue : '' }}
+                >
+                    All Exercises
+                </button>
+                <button 
+                    onClick={() => setActiveCategory('calisthenics')}
+                    className={cn(
+                        "px-4 py-2 rounded-full text-sm font-semibold transition-colors",
+                        activeCategory === 'calisthenics' 
+                            ? "bg-[#1e628c] text-white" 
+                            : "bg-white text-slate-700 hover:bg-slate-100"
+                    )}
+                    style={{ backgroundColor: activeCategory === 'calisthenics' ? customBlue : '' }}
+                >
+                    Calisthenics
+                </button>
+                <button 
+                    onClick={() => setActiveCategory('mobility')}
+                    className={cn(
+                        "px-4 py-2 rounded-full text-sm font-semibold transition-colors",
+                        activeCategory === 'mobility' 
+                            ? "bg-[#1e628c] text-white" 
+                            : "bg-white text-slate-700 hover:bg-slate-100"
+                    )}
+                    style={{ backgroundColor: activeCategory === 'mobility' ? customBlue : '' }}
+                >
+                    Mobility
+                </button>
+                <button 
+                    onClick={() => setActiveCategory('core')}
+                    className={cn(
+                        "px-4 py-2 rounded-full text-sm font-semibold transition-colors",
+                        activeCategory === 'core' 
+                            ? "bg-[#1e628c] text-white" 
+                            : "bg-white text-slate-700 hover:bg-slate-100"
+                    )}
+                    style={{ backgroundColor: activeCategory === 'core' ? customBlue : '' }}
+                >
+                    Core
+                </button>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                {filteredExercises.map((exercise) => (
+                    <div key={exercise.id} className="card">
+                        <div className="relative h-48 w-full overflow-hidden rounded-t-lg">
+                            <img 
+                                src={exercise.image} 
+                                alt={exercise.title}
+                                className="w-full h-full object-cover"
+                            />
+                            <div 
+                                className="absolute top-2 right-2 px-2 py-1 rounded-full text-xs font-bold text-white"
+                                style={{
+                                    backgroundColor: 
+                                        exercise.category === 'calisthenics' ? customBlue : 
+                                        exercise.category === 'mobility' ? "#10b981" : "#f97316"
+                                }}
+                            >
+                                {exercise.category}
+                            </div>
+                        </div>
+                        
+                        <div className="p-4">
+                            <h3 className="card-title text-lg">{exercise.title}</h3>
+                            <p className="text-slate-600 text-sm mt-2">{exercise.description}</p>
+                            
+                            <div className="flex items-center mt-4">
+                                <div className="flex items-center gap-1 mr-3">
+                                    {[1, 2, 3].map((level) => (
+                                        <span 
+                                            key={level}
+                                            className={cn(
+                                                "w-2 h-2 rounded-full",
+                                                level <= exercise.difficulty 
+                                                    ? "bg-slate-500" 
+                                                    : "bg-slate-200"
+                                            )}
+                                            style={{
+                                                backgroundColor: level <= exercise.difficulty 
+                                                    ? customBlue 
+                                                    : "#e2e8f0"
+                                            }}
+                                        />
+                                    ))}
+                                </div>
+                                <span className="text-xs text-slate-500">
+                                    {exercise.difficulty === 1 ? 'Beginner' : 
+                                     exercise.difficulty === 2 ? 'Intermediate' : 'Advanced'}
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                ))}
+            </div>
+
+            {/* No results message when filters return empty */}
+            {filteredExercises.length === 0 && (
+                <div className="py-8 text-center">
+                    <p className="text-slate-600">No exercises found in this category.</p>
+                    <button
+                        onClick={() => setActiveCategory('all')}
+                        className="mt-4 text-[#1e628c] hover:underline"
+                    >
+                        View all exercises
+                    </button>
+                </div>
+            )}
+
+            <Footer />
+        </div>
+    );
+};
+
+export default LibraryPage;
