@@ -20,16 +20,15 @@ import frogPoseImage from "@/assets/frog-pose.png";
 
 // Import placeholders for new exercise images
 // Note: You would replace these with actual image imports when available
-import russianTwistImage from "@/assets/hollow-body-hold.png"; // Placeholder
-import bicycleCrunchImage from "@/assets/hollow-body-hold.png"; // Placeholder
-import deadBugImage from "@/assets/hollow-body-hold.png"; // Placeholder
-import hangingLegRaiseImage from "@/assets/dragon-flag.png"; // Placeholder
-import sidePlankRotationImage from "@/assets/hollow-body-hold.png"; // Placeholder
-import hipFlexorStretchImage from "@/assets/cossack-squat-hold.png"; // Placeholder
-import downwardDogImage from "@/assets/straight-arm-backwards-stretch.png"; // Placeholder
-import worldsGreatestStretchImage from "@/assets/cossack-squat-hold.png"; // Placeholder
-import thoracicBridgeImage from "@/assets/chest-stretch.png"; // Placeholder
-import ninetyNinetyHipStretchImage from "@/assets/cossack-squat-hold.png"; // Placeholder
+import russianTwistImage from "@/assets/russian-twist.png"; // Placeholder
+import bicycleCrunchImage from "@/assets/bicycle-crunch.png"; // Placeholder
+import deadBugImage from "@/assets/dead-bug.png"; // Placeholder
+import hangingLegRaiseImage from "@/assets/hanging-leg-raise.png"; // Placeholder
+import sidePlankRotationImage from "@/assets/side-plank-rotation.png"; // Placeholder
+import hipFlexorStretchImage from "@/assets/hip-fkexor-stretch.png"; // Placeholder
+import downwardDogImage from "@/assets/downward-dog.png"; // Placeholder
+import worldsGreatestStretchImage from "@/assets/worlds-greatest-stretch.png"; // Placeholder
+import thoracicBridgeImage from "@/assets/thoraic-bridge.png"; // Placeholder
 
 // Exercise data with added core and mobility exercises
 const exercises = [
@@ -234,14 +233,6 @@ const exercises = [
         description: "An intermediate level mobility exercise that opens the chest and improves thoracic spine extension and shoulder mobility.",
         difficulty: 2,
         image: thoracicBridgeImage
-    },
-    {
-        id: 26,
-        title: "90/90 Hip Stretch",
-        category: "mobility",
-        description: "A stretch that targets both internal and external hip rotation simultaneously, improving hip mobility in all directions.",
-        difficulty: 2,
-        image: ninetyNinetyHipStretchImage
     }
 ];
 
