@@ -21,7 +21,7 @@ import frogPoseImage from "@/assets/frog-pose.png";
 // Import placeholders for new exercise images
 // Note: You would replace these with actual image imports when available
 import russianTwistImage from "@/assets/russian-twists.png"; // Placeholder
-import bicycleCrunchImage from "@/assets/frog-pose.png"; // Placeholder
+import alternateHeelTouchesImage from "@/assets/alternate-heel-touches"; // Placeholder
 import deadBugImage from "@/assets/frog-pose.png"; // Placeholder
 import hangingLegRaiseImage from "@/assets/frog-pose.png"; // Placeholder
 import sidePlankRotationImage from "@/assets/frog-pose.png"; // Placeholder
@@ -183,11 +183,11 @@ const exercises = [
     },
     {
         id: 18,
-        title: "Bicycle Crunch",
+        title: "Alternate Heel Touches",
         category: "core",
-        description: "A dynamic core exercise that engages the entire abdominal region, especially the obliques, through a cycling motion.",
+        description: "A core exercise where you lie on your back, bend your knees, and reach side to side to tap your heels, engaging the obliques with each repetition.",
         difficulty: 1,
-        image: bicycleCrunchImage
+        image: alternateHeelTouchesImage
     },
     {
         id: 19,
