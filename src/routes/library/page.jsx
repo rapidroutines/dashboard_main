@@ -20,6 +20,17 @@ import frogPoseImage from "@/assets/frog-pose.png";
 
 // Import placeholders for new exercise images
 // Note: You would replace these with actual image imports when available
+import russianTwistImage from "@/assets/frog-pose.png"; // Placeholder
+import bicycleCrunchImage from "@/assets/frog-pose.png"; // Placeholder
+import deadBugImage from "@/assets/frog-pose.png"; // Placeholder
+import hangingLegRaiseImage from "@/assets/frog-pose.png"; // Placeholder
+import sidePlankRotationImage from "@/assets/frog-pose.png"; // Placeholder
+import hipFlexorStretchImage from "@/assets/frog-pose.png"; // Placeholder
+import downwardDogImage from "@/assets/frog-pose.png"; // Placeholder
+import worldsGreatestStretchImage from "@/assets/frog-pose.png"; // Placeholder
+import thoracicBridgeImage from "@/assets/frog-pose.png"; // Placeholder
+
+/*
 import russianTwistImage from "@/assets/russian-twist.png"; // Placeholder
 import bicycleCrunchImage from "@/assets/bicycle-crunch.png"; // Placeholder
 import deadBugImage from "@/assets/dead-bug.png"; // Placeholder
@@ -29,6 +40,7 @@ import hipFlexorStretchImage from "@/assets/hip-fkexor-stretch.png"; // Placehol
 import downwardDogImage from "@/assets/downward-dog.png"; // Placeholder
 import worldsGreatestStretchImage from "@/assets/worlds-greatest-stretch.png"; // Placeholder
 import thoracicBridgeImage from "@/assets/thoraic-bridge.png"; // Placeholder
+*/
 
 // Exercise data with added core and mobility exercises
 const exercises = [
