@@ -27,7 +27,7 @@ import sideObliqueRaisesImage from "@/assets/side-oblique-raises.png"; // Placeh
 import scissorsImage from "@/assets/scissors.png"; // Placeholder
 import hipFlexorStretchImage from "@/assets/hip-flexors.png"; // Placeholder
 import downwardDogImage from "@/assets/downward-dog.png"; // Placeholder
-import worldsGreatestStretchImage from "@/assets/frog-pose.png"; // Placeholder
+import worldsGreatestStretchImage from "@/assets/worlds-greatest-stretch.png"; // Placeholder
 import thoracicBridgeImage from "@/assets/frog-pose.png"; // Placeholder
 
 /*
