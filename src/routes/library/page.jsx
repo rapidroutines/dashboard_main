@@ -28,7 +28,7 @@ import scissorsImage from "@/assets/scissors.png"; // Placeholder
 import hipFlexorStretchImage from "@/assets/hip-flexors.png"; // Placeholder
 import downwardDogImage from "@/assets/downward-dog.png"; // Placeholder
 import worldsGreatestStretchImage from "@/assets/worlds-greatest-stretch.png"; // Placeholder
-import thoracicBridgeImage from "@/assets/frog-pose.png"; // Placeholder
+import butterflyImage from "@/assets/butterfly.png"; // Placeholder
 
 /*
 import russianTwistImage from "@/assets/russian-twist.png"; 
@@ -240,11 +240,11 @@ const exercises = [
     },
     {
         id: 25,
-        title: "Thoracic Bridge",
+        title: "Butterfly",
         category: "mobility",
-        description: "An intermediate level mobility exercise that opens the chest and improves thoracic spine extension and shoulder mobility.",
-        difficulty: 2,
-        image: thoracicBridgeImage
+        description: "A seated stretch that targets the inner thighs and hips by bringing the soles of the feet together and allowing the knees to drop outward.",
+        difficulty: 1,
+        image: butterflyImage
     }
 ];
 
