@@ -18,7 +18,20 @@ import frontLeverImage from "@/assets/front-lever.png";
 import plancheLeanImage from "@/assets/planche-lean.png";
 import frogPoseImage from "@/assets/frog-pose.png";
 
-// Exercise data
+// Import placeholders for new exercise images
+// Note: You would replace these with actual image imports when available
+import russianTwistImage from "@/assets/hollow-body-hold.png"; // Placeholder
+import bicycleCrunchImage from "@/assets/hollow-body-hold.png"; // Placeholder
+import deadBugImage from "@/assets/hollow-body-hold.png"; // Placeholder
+import hangingLegRaiseImage from "@/assets/dragon-flag.png"; // Placeholder
+import sidePlankRotationImage from "@/assets/hollow-body-hold.png"; // Placeholder
+import hipFlexorStretchImage from "@/assets/cossack-squat-hold.png"; // Placeholder
+import downwardDogImage from "@/assets/straight-arm-backwards-stretch.png"; // Placeholder
+import worldsGreatestStretchImage from "@/assets/cossack-squat-hold.png"; // Placeholder
+import thoracicBridgeImage from "@/assets/chest-stretch.png"; // Placeholder
+import ninetyNinetyHipStretchImage from "@/assets/cossack-squat-hold.png"; // Placeholder
+
+// Exercise data with added core and mobility exercises
 const exercises = [
     {
         id: 1,
@@ -140,13 +153,95 @@ const exercises = [
         difficulty: 1,
         image: plancheLeanImage
     },
-     {
+    {
         id: 16,
         title: "Frog Pose",
         category: "calisthenics",
         description: "A deep hip-opening stretch where you rest on your hands or forearms with knees wide apart.",
         difficulty: 1,
         image: frogPoseImage
+    },
+    // NEW CORE EXERCISES
+    {
+        id: 17,
+        title: "Russian Twist",
+        category: "core",
+        description: "A rotational exercise that targets the obliques and abdominal muscles by twisting the torso from side to side.",
+        difficulty: 1,
+        image: russianTwistImage
+    },
+    {
+        id: 18,
+        title: "Bicycle Crunch",
+        category: "core",
+        description: "A dynamic core exercise that engages the entire abdominal region, especially the obliques, through a cycling motion.",
+        difficulty: 1,
+        image: bicycleCrunchImage
+    },
+    {
+        id: 19,
+        title: "Dead Bug",
+        category: "core",
+        description: "A beginner-friendly exercise that focuses on core stability and coordination while protecting the lower back.",
+        difficulty: 1,
+        image: deadBugImage
+    },
+    {
+        id: 20,
+        title: "Hanging Leg Raise",
+        category: "core",
+        description: "An advanced exercise that targets the lower abdominals and hip flexors by lifting the legs while hanging from a bar.",
+        difficulty: 3,
+        image: hangingLegRaiseImage
+    },
+    {
+        id: 21,
+        title: "Side Plank Rotation",
+        category: "core",
+        description: "A challenging variation of the side plank that adds rotational movement to engage the obliques and improve core stability.",
+        difficulty: 2,
+        image: sidePlankRotationImage
+    },
+    // NEW MOBILITY EXERCISES
+    {
+        id: 22,
+        title: "Hip Flexor Stretch",
+        category: "mobility",
+        description: "A stretch targeting the hip flexors to improve hip extension, reduce lower back pain, and enhance posture.",
+        difficulty: 1,
+        image: hipFlexorStretchImage
+    },
+    {
+        id: 23,
+        title: "Downward Dog",
+        category: "mobility",
+        description: "A yoga pose that stretches the shoulders, hamstrings, calves, and arches of the feet while strengthening the arms and legs.",
+        difficulty: 1,
+        image: downwardDogImage
+    },
+    {
+        id: 24,
+        title: "World's Greatest Stretch",
+        category: "mobility",
+        description: "A comprehensive mobility exercise that targets hips, thoracic spine, and shoulders in one fluid sequence.",
+        difficulty: 2,
+        image: worldsGreatestStretchImage
+    },
+    {
+        id: 25,
+        title: "Thoracic Bridge",
+        category: "mobility",
+        description: "An intermediate level mobility exercise that opens the chest and improves thoracic spine extension and shoulder mobility.",
+        difficulty: 2,
+        image: thoracicBridgeImage
+    },
+    {
+        id: 26,
+        title: "90/90 Hip Stretch",
+        category: "mobility",
+        description: "A stretch that targets both internal and external hip rotation simultaneously, improving hip mobility in all directions.",
+        difficulty: 2,
+        image: ninetyNinetyHipStretchImage
     }
 ];
 
