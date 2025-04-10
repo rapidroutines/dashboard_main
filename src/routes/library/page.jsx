@@ -31,15 +31,15 @@ import worldsGreatestStretchImage from "@/assets/frog-pose.png"; // Placeholder
 import thoracicBridgeImage from "@/assets/frog-pose.png"; // Placeholder
 
 /*
-import russianTwistImage from "@/assets/russian-twist.png"; // Placeholder
-import bicycleCrunchImage from "@/assets/bicycle-crunch.png"; // Placeholder
-import deadBugImage from "@/assets/dead-bug.png"; // Placeholder
-import hangingLegRaiseImage from "@/assets/hanging-leg-raise.png"; // Placeholder
-import sidePlankRotationImage from "@/assets/side-plank-rotation.png"; // Placeholder
-import hipFlexorStretchImage from "@/assets/hip-fkexor-stretch.png"; // Placeholder
-import downwardDogImage from "@/assets/downward-dog.png"; // Placeholder
-import worldsGreatestStretchImage from "@/assets/worlds-greatest-stretch.png"; // Placeholder
-import thoracicBridgeImage from "@/assets/thoraic-bridge.png"; // Placeholder
+import russianTwistImage from "@/assets/russian-twist.png"; 
+import bicycleCrunchImage from "@/assets/bicycle-crunch.png"; 
+import deadBugImage from "@/assets/dead-bug.png"; 
+import hangingLegRaiseImage from "@/assets/hanging-leg-raise.png";
+import sidePlankRotationImage from "@/assets/side-plank-rotation.png"; 
+import hipFlexorStretchImage from "@/assets/hip-fkexor-stretch.png"; 
+import downwardDogImage from "@/assets/downward-dog.png";
+import worldsGreatestStretchImage from "@/assets/worlds-greatest-stretch.png"; 
+import thoracicBridgeImage from "@/assets/thoraic-bridge.png"; 
 */
 
 // Exercise data with added core and mobility exercises
