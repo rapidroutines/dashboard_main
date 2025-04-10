@@ -3,7 +3,6 @@ import { Footer } from "@/layouts/footer";
 import { X, Info, CheckCircle, Lock, RefreshCw } from "lucide-react";
 import { cn } from "@/utils/cn";
 
-// Initialize exercise categories with only first item unlocked
 const initializeExerciseCategories = () => {
     const categories = {
         push: [
@@ -110,7 +109,6 @@ const initializeExerciseCategories = () => {
         ]
     };
 
-    // Ensure only the first exercise in each category is unlocked
     Object.keys(categories).forEach(category => {
         if (categories[category].length > 0) {
             categories[category][0].isLocked = false;
@@ -129,7 +127,6 @@ const RapidTreePage = () => {
     const [selectedExercise, setSelectedExercise] = useState(null);
     const [totalProgress, setTotalProgress] = useState(0);
 
-    // Calculate total progress
     useEffect(() => {
         let completedCount = 0;
         let totalCount = 0;
@@ -147,7 +144,6 @@ const RapidTreePage = () => {
         setTotalProgress(percentage);
     }, [exercises]);
 
-    // Load saved progress from localStorage
     useEffect(() => {
         const savedProgress = localStorage.getItem('rapidTreeProgress');
         if (savedProgress) {
@@ -157,7 +153,6 @@ const RapidTreePage = () => {
 
                 Object.keys(parsedProgress).forEach(category => {
                     if (updatedExercises[category]) {
-                        // First, apply the completion status
                         parsedProgress[category].forEach(savedExercise => {
                             const index = updatedExercises[category].findIndex(ex => ex.id === savedExercise.id);
                             if (index !== -1) {
@@ -165,20 +160,16 @@ const RapidTreePage = () => {
                             }
                         });
 
-                        // Then, ensure correct unlocking based on completion
                         for (let i = 0; i < updatedExercises[category].length; i++) {
-                            // First exercise is always unlocked
                             if (i === 0) {
                                 updatedExercises[category][i].isLocked = false;
                                 continue;
                             }
 
-                            // If previous exercise is completed, unlock this one
                             if (updatedExercises[category][i-1].isCompleted) {
                                 updatedExercises[category][i].isLocked = false;
                             } else {
                                 updatedExercises[category][i].isLocked = true;
-                                // Lock all subsequent exercises
                                 for (let j = i+1; j < updatedExercises[category].length; j++) {
                                     if (!updatedExercises[category][j].isCompleted) {
                                         updatedExercises[category][j].isLocked = true;
@@ -197,7 +188,6 @@ const RapidTreePage = () => {
         }
     }, []);
 
-    // Save progress to localStorage
     const saveProgress = () => {
         const progressData = {};
 
@@ -212,7 +202,6 @@ const RapidTreePage = () => {
         localStorage.setItem('rapidTreeProgress', JSON.stringify(progressData));
     };
 
-    // Show exercise details
     const showExerciseDetails = (category, exerciseId) => {
         const exercise = exercises[category].find(ex => ex.id === exerciseId);
         if (exercise && !exercise.isLocked) {
@@ -220,7 +209,6 @@ const RapidTreePage = () => {
         }
     };
 
-    // Complete an exercise
     const completeExercise = (category, exerciseId) => {
         const updatedExercises = {...exercises};
         const index = updatedExercises[category].findIndex(ex => ex.id === exerciseId);
@@ -229,7 +217,6 @@ const RapidTreePage = () => {
 
         updatedExercises[category][index].isCompleted = true;
 
-        // Unlock the next exercise if it exists
         if (index + 1 < updatedExercises[category].length) {
             updatedExercises[category][index + 1].isLocked = false;
         }
@@ -239,31 +226,26 @@ const RapidTreePage = () => {
         saveProgress();
     };
 
-    // Reset exercise completion
     const resetExercise = (category, exerciseId) => {
         const updatedExercises = {...exercises};
         const index = updatedExercises[category].findIndex(ex => ex.id === exerciseId);
 
         if (index === -1) return;
         
-        // Check if this exercise can be reset
         const nextExerciseIndex = index + 1;
         const hasNextExercise = nextExerciseIndex < updatedExercises[category].length;
         
-        // Only allow reset if there's no next exercise OR if the next exercise is unlocked
         if (!hasNextExercise || (hasNextExercise && !updatedExercises[category][nextExerciseIndex].isLocked)) {
             updatedExercises[category][index].isCompleted = false;
             
-            // If there is a next exercise and it's not completed, lock it
             if (hasNextExercise && !updatedExercises[category][nextExerciseIndex].isCompleted) {
                 updatedExercises[category][nextExerciseIndex].isLocked = true;
                 
-                // Also lock all subsequent uncompleted exercises
                 for (let i = nextExerciseIndex + 1; i < updatedExercises[category].length; i++) {
                     if (!updatedExercises[category][i].isCompleted) {
                         updatedExercises[category][i].isLocked = true;
                     } else {
-                        break; // Stop at first completed exercise
+                        break; 
                     }
                 }
             }
@@ -272,12 +254,10 @@ const RapidTreePage = () => {
             setSelectedExercise(null);
             saveProgress();
         } else {
-            // If reset is not allowed, just close the dialog
             setSelectedExercise(null);
         }
     };
 
-    // Check if an exercise can be reset
     const canResetExercise = (category, exerciseId) => {
         const index = exercises[category].findIndex(ex => ex.id === exerciseId);
         if (index === -1) return false;
@@ -285,16 +265,13 @@ const RapidTreePage = () => {
         const nextExerciseIndex = index + 1;
         const hasNextExercise = nextExerciseIndex < exercises[category].length;
         
-        // Can reset if there's no next exercise OR if the next exercise is unlocked but NOT completed
         return !hasNextExercise || (hasNextExercise && 
             !exercises[category][nextExerciseIndex].isLocked && 
             !exercises[category][nextExerciseIndex].isCompleted);
     };
 
-    // Get exercise description for all exercises
     const getExerciseDescription = (exerciseId) => {
         const descriptions = {
-            // PUSH exercises
             inclinePushUp: 'Easier push-up with hands elevated, reducing body weight resistance.',
             kneelingPushUp: 'Push-up performed from knees to reduce resistance for beginners.',
             pushUp: 'The standard push-up works the chest, shoulders, triceps, and core.',
@@ -311,7 +288,6 @@ const RapidTreePage = () => {
             planchePushUp: 'Push-ups performed in the horizontal planche position.',
             maltese: 'Extremely advanced hold with arms wide and body parallel to ground.',
             
-            // PULL exercises
             scapulaPull: 'Fundamental hanging exercise focusing on shoulder blade control.',
             activeHang: 'Hanging with engaged shoulders to build grip and shoulder stability.',
             negPullUp: 'Lowering from the top of a pull-up to build initial strength.',
@@ -328,7 +304,6 @@ const RapidTreePage = () => {
             frontLeverPull: 'Pulling while maintaining a horizontal body position.',
             oneArmMuscleUp: 'Single-arm transition from below to above the bar.',
             
-            // LEGS exercises
             assistSquat: 'Supported squats to learn proper form and build initial strength.',
             squat: 'Basic squatting movement targeting quads, hamstrings, and glutes.',
             lunge: 'Step forward into a split stance, targeting legs individually.',
@@ -345,7 +320,6 @@ const RapidTreePage = () => {
             naturalLegExt: 'Kneeling exercise focusing on quadriceps strength.',
             deepPistolSquat: 'Full-range pistol squat with extra depth and control.',
             
-            // CORE exercises
             deadBug: 'Core stability exercise with opposite arm and leg movements.',
             plank: 'Holding a push-up position on forearms to build core endurance.',
             kneeRaise: 'Lifting knees toward chest while hanging or supported.',
@@ -362,7 +336,6 @@ const RapidTreePage = () => {
             vSit: 'Advanced L-sit with legs raised higher in a V shape.',
             manna: 'Elite gymnastic hold with legs extended forward beyond hands.',
             
-            // MOBILITY exercises
             neckRotation: 'Gentle circular movements to release neck tension.',
             wristMob: 'Wrist movements in all directions for hand support preparation.',
             shoulderMob: 'Movements to improve shoulder joint range of motion.',
@@ -379,7 +352,6 @@ const RapidTreePage = () => {
             middleSplit: 'Lateral leg split for adductor and hip flexibility.',
             bridgeStretch: 'Back bend with hands and feet on floor for spine and shoulder mobility.',
             
-            // SKILLS exercises
             ctw: 'Crow pose with feet touching wall for support while learning.',
             crow: 'Arm balance with knees resting on backs of arms.',
             lsit: 'Fundamental gymnastics position holding legs straight out in front.',
@@ -399,10 +371,8 @@ const RapidTreePage = () => {
         return descriptions[exerciseId] || 'This exercise focuses on building functional strength through proper form and progression.';
     };
 
-    // Get exercise tips for all exercises
     const getExerciseTips = (exerciseId) => {
         const tips = {
-            // PUSH exercises
             inclinePushUp: ['Find stable elevated surface', 'Keep body straight', 'Lower chest to edge'],
             kneelingPushUp: ['Maintain straight line from knees to head', 'Keep core engaged', 'Full range of motion'],
             pushUp: ['Keep body in a straight line', 'Lower until chest nearly touches ground', 'Keep elbows at about 45°'],
@@ -419,7 +389,6 @@ const RapidTreePage = () => {
             planchePushUp: ['Maintain body position', 'Protract shoulders', 'Press with control'],
             maltese: ['Build prerequisite strength', 'Use assistance if needed', 'Focus on shoulder depression'],
             
-            // PULL exercises
             scapulaPull: ['Engage shoulder blades', 'Pull down and together', 'Hold briefly at bottom'],
             activeHang: ['Shoulders away from ears', 'Create full-body tension', 'Practice controlled breathing'],
             negPullUp: ['Start at top position', 'Lower slowly (3-5 seconds)', 'Control the descent'],
@@ -436,7 +405,6 @@ const RapidTreePage = () => {
             frontLeverPull: ['Maintain body position', 'Pull from lever to bar', 'Control the movement'],
             oneArmMuscleUp: ['Master one-arm pull first', 'Use false grip', 'Practice transition separately'],
             
-            // LEGS exercises
             assistSquat: ['Use support only for balance', 'Weight in heels', 'Keep back neutral'],
             squat: ['Feet shoulder-width', 'Knees track over toes', 'Hips below parallel'],
             lunge: ['Step forward with control', 'Front knee over ankle', 'Drive through heel'],
@@ -453,7 +421,6 @@ const RapidTreePage = () => {
             naturalLegExt: ['Kneel on soft surface', 'Maintain straight body', 'Use hands if needed'],
             deepPistolSquat: ['Full range of motion', 'Keep heel planted', 'Rise without momentum'],
             
-            // CORE exercises
             deadBug: ['Press lower back to floor', 'Extend opposite limbs', 'Breathe normally'],
             plank: ['Straight line head to heels', 'Shoulders over elbows', 'Engage core fully'],
             kneeRaise: ['Avoid swinging', 'Lift knees to chest', 'Lower with control'],
@@ -470,7 +437,6 @@ const RapidTreePage = () => {
             vSit: ['Press hands down', 'Lean back slightly', 'Lift legs higher than L-sit'],
             manna: ['Master L-sit first', 'Lean forward', 'Press strongly with straight arms'],
             
-            // MOBILITY exercises
             neckRotation: ['Move slowly', 'Avoid pain', 'Breathe deeply'],
             wristMob: ['Move in all directions', 'Apply gentle pressure', 'Do before hand balancing'],
             shoulderMob: ['Include all movement planes', 'Start small, increase range', 'Regular practice'],
@@ -487,7 +453,6 @@ const RapidTreePage = () => {
             middleSplit: ['Toes up or slightly out', 'Support with hands', 'Keep pelvis neutral'],
             bridgeStretch: ['Push through arms', 'Feet hip-width', 'Work toward straight arms'],
             
-            // SKILLS exercises
             ctw: ['Hands shoulder-width', 'Knees on arms', 'Toes touch wall'],
             crow: ['Spread fingers wide', 'Look slightly forward', 'Engage core'],
             lsit: ['Push shoulders down', 'Straighten legs', 'Start on raised surface if needed'],
@@ -507,7 +472,6 @@ const RapidTreePage = () => {
         return tips[exerciseId] || ['Maintain proper form', 'Focus on controlled movement', 'Breathe steadily throughout'];
     };
 
-    // Reset all exercises to initial state
     const resetAllExercises = () => {
         if (window.confirm("Are you sure you want to reset all progress? This cannot be undone.")) {
             const freshExercises = initializeExerciseCategories();
@@ -530,7 +494,6 @@ const RapidTreePage = () => {
                 </button>
             </div>
 
-            {/* Progress Bar */}
             <div className="w-full rounded-lg bg-slate-100 p-4 shadow-sm">
                 <div className="flex w-full flex-col items-center justify-center">
                     <div className="mb-2 flex justify-between w-full">
@@ -546,7 +509,6 @@ const RapidTreePage = () => {
                 </div>
             </div>
 
-            {/* Category Menu */}
             <div className="flex flex-wrap gap-2 overflow-x-auto pb-2 sm:flex-nowrap">
                 {Object.keys(exercises).map((category) => (
                     <button
@@ -564,7 +526,6 @@ const RapidTreePage = () => {
                 ))}
             </div>
 
-            {/* Hexagon Grid Container - Responsive */}
             <div className="relative min-h-[50vh] w-full overflow-x-auto">
                 <div className="grid grid-cols-2 gap-4 pb-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
                     {exercises[activeCategory].map((exercise, index) => (
@@ -596,7 +557,6 @@ const RapidTreePage = () => {
                 </div>
             </div>
 
-            {/* Exercise Details Panel */}
             {selectedExercise && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
                     <div className="max-h-[90vh] w-full max-w-md overflow-y-auto rounded-lg bg-white p-6 shadow-xl">
