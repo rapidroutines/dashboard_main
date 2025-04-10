@@ -24,7 +24,7 @@ import russianTwistImage from "@/assets/russian-twists.png"; // Placeholder
 import alternateHeelTouchesImage from "@/assets/alternate-heel-touches.png"; // Placeholder
 import sidePlankImage from "@/assets/side-plank.png"; // Placeholder
 import sideObliqueRaisesImage from "@/assets/side-oblique-raises.png"; // Placeholder
-import sidePlankRotationImage from "@/assets/frog-pose.png"; // Placeholder
+import scissorsImage from "@/assets/Scissors.png"; // Placeholder
 import hipFlexorStretchImage from "@/assets/frog-pose.png"; // Placeholder
 import downwardDogImage from "@/assets/frog-pose.png"; // Placeholder
 import worldsGreatestStretchImage from "@/assets/frog-pose.png"; // Placeholder
@@ -207,11 +207,11 @@ const exercises = [
     },
     {
         id: 21,
-        title: "Side Plank Rotation",
+        title: "Scissors",
         category: "core",
-        description: "A challenging variation of the side plank that adds rotational movement to engage the obliques and improve core stability.",
-        difficulty: 2,
-        image: sidePlankRotationImage
+        description: "A core and hip workout where you lie on your back and alternate raising and lowering your legs in a crisscross "scissor" motion, keeping them straight and off the ground.",
+        difficulty: 1,
+        image: scissorsImage
     },
     // NEW MOBILITY EXERCISES
     {
