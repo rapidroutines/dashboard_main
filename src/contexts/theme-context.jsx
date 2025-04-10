@@ -10,18 +10,15 @@ export const ThemeProviderContext = createContext(initialState);
 
 export function ThemeProvider({ children, storageKey = "vite-ui-theme", ...props }) {
     const [theme, setTheme] = useState(() => {
-        // Always default to light theme for initial state
         return "light";
     });
 
     useEffect(() => {
         const root = window.document.documentElement;
         
-        // Remove the old theme class and add the new theme class
         root.classList.remove("light", "dark");
         root.classList.add(theme);
         
-        // Save the theme to localStorage if using a storage key
         if (storageKey) {
             localStorage.setItem(storageKey, theme);
         }
