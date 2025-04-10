@@ -29,9 +29,7 @@ const DashboardPage = () => {
               </div>
             </div>
             
-            <div className="h-1 w-full bg-slate-700">
-              <div className="h-full" style={{ width: "0%", backgroundColor: brandColor }}></div>
-            </div>
+           
           </div>
         </div>
       </div>
