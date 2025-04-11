@@ -22,76 +22,34 @@ function App() {
                         <Route path="/signin" element={<SignInPage />} />
                         <Route path="/signup" element={<SignUpPage />} />
                         
-                        {/* Public dashboard with conditional content */}
-                        <Route path="/" element={
-                            <Layout>
-                                <DashboardPage />
-                            </Layout>
-                        } />
+                        {/* Publicly accessible routes with unprotected access */}
+                        <Route path="/library" element={<Layout><LibraryPage /></Layout>} />
+                        <Route path="/chatbot" element={<Layout><ChatbotPage /></Layout>} />
+                        <Route path="/repbot" element={<Layout><RepBotPage /></Layout>} />
+                        <Route path="/exercise-tracker" element={<Layout><ExerciseTrackerPage /></Layout>} />
+                        <Route path="/rapidtree" element={<Layout><RapidTreePage /></Layout>} />
 
-                        <Route path="/" element={
-                            <Layout>
-                                <DashboardPage />
-                            </Layout>
-                        } />
-
-                        {/* Protected routes */}
-                        <Route path="/analytics" element={
-                            <ProtectedRoute>
-                                <Layout>
-                                    <h1 className="title">Analytics Page</h1>
-                                </Layout>
-                            </ProtectedRoute>
-                        } />
-                        <Route path="/reports" element={
-                            <ProtectedRoute>
-                                <Layout>
-                                    <h1 className="title">Reports Page</h1>
-                                </Layout>
-                            </ProtectedRoute>
-                        } />
-                        <Route path="/library" element={
-                            <ProtectedRoute>
-                                <Layout>
-                                    <LibraryPage />
-                                </Layout>
-                            </ProtectedRoute>
-                        } />
-                        <Route path="/exercise-tracker" element={
-                            <ProtectedRoute>
-                                <Layout>
-                                    <ExerciseTrackerPage />
-                                </Layout>
-                            </ProtectedRoute>
-                        } />
-                        <Route path="/rapidtree" element={
-                            <ProtectedRoute>
-                                <Layout>
-                                    <RapidTreePage />
-                                </Layout>
-                            </ProtectedRoute>
-                        } />
-                        <Route path="/chatbot" element={
-                            <ProtectedRoute>
-                                <Layout>
-                                    <ChatbotPage />
-                                </Layout>
-                            </ProtectedRoute>
-                        } />
-                        <Route path="/repbot" element={
-                            <ProtectedRoute>
-                                <Layout>
-                                    <RepBotPage />
-                                </Layout>
-                            </ProtectedRoute>
-                        } />
-                        <Route path="*" element={
-                            <ProtectedRoute>
+                        {/* Dashboard route - Protected with blurred view for non-authenticated users */}
+                        <Route 
+                            path="/" 
+                            element={
                                 <Layout>
                                     <DashboardPage />
                                 </Layout>
-                            </ProtectedRoute>
-                        } />
+                            } 
+                        />
+
+                        {/* Additional protected routes requiring authentication */}
+                        <Route 
+                            path="/analytics" 
+                            element={
+                                <ProtectedRoute>
+                                    <Layout>
+                                        <h1 className="title">Analytics Page</h1>
+                                    </Layout>
+                                </ProtectedRoute>
+                            } 
+                        />
                     </Routes>
                 </Router>
             </AuthProvider>
