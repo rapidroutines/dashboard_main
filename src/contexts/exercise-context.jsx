@@ -26,8 +26,13 @@ export const ExerciseProvider = ({ children }) => {
                     if (storedExercises) {
                         const parsedExercises = JSON.parse(storedExercises);
                         setExercises(parsedExercises);
-                        console.log("Loaded exercises from storage:", parsedExercises);
+                        console.log("Loaded exercises from storage:", parsedExercises.length);
+                    } else {
+                        console.log("No stored exercises found for user:", userId);
+                        setExercises([]);
                     }
+                } else {
+                    console.log("User not authenticated, no exercises loaded");
                 }
             } catch (error) {
                 console.error("Error loading exercises from storage:", error);
@@ -46,7 +51,7 @@ export const ExerciseProvider = ({ children }) => {
                 if (isAuthenticated && user && exercises.length > 0) {
                     const userId = user.email;
                     localStorage.setItem(`exercises_${userId}`, JSON.stringify(exercises));
-                    console.log("Saved exercises to storage:", exercises);
+                    console.log("Saved exercises to storage:", exercises.length);
                 }
             } catch (error) {
                 console.error("Error saving exercises to storage:", error);
@@ -71,13 +76,29 @@ export const ExerciseProvider = ({ children }) => {
             ...exerciseData
         };
 
-        setExercises(prevExercises => [...prevExercises, newExercise]);
+        console.log("Adding new exercise:", newExercise);
+        
+        setExercises(prevExercises => {
+            const updatedExercises = [...prevExercises, newExercise];
+            
+            // Also update in localStorage immediately for redundancy
+            try {
+                const userId = user.email;
+                localStorage.setItem(`exercises_${userId}`, JSON.stringify(updatedExercises));
+                console.log("Updated exercises in storage:", updatedExercises.length);
+            } catch (error) {
+                console.error("Error immediately saving exercise to storage:", error);
+            }
+            
+            return updatedExercises;
+        });
+        
         return true;
     };
 
     // Get exercises with optional filtering
     const getExercises = (count = null) => {
-        if (!exercises) return [];
+        if (!exercises || exercises.length === 0) return [];
         
         // Sort by timestamp (newest first)
         const sortedExercises = [...exercises].sort((a, b) => 
