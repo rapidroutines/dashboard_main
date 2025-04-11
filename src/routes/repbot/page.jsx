@@ -10,6 +10,9 @@ const RepBotPage = () => {
     const { addExercise } = useExercises();
     const iframeRef = useRef(null);
     
+    // Keep track of processed exercise messages to prevent duplicates
+    const processedMessages = useRef(new Set());
+    
     // Listen for messages from the iframe
     useEffect(() => {
         if (!isAuthenticated) return; // Only track for authenticated users
@@ -26,6 +29,18 @@ const RepBotPage = () => {
             // Check if it's an exercise completion message
             if (event.data && event.data.type === "exerciseCompleted") {
                 const { exerciseType, repCount } = event.data;
+                
+                // Create a unique message ID based on the timestamp and rep details
+                const messageId = `${exerciseType}-${repCount}-${Date.now()}`;
+                
+                // Skip if we've already processed this message
+                if (processedMessages.current.has(messageId)) {
+                    console.log("Duplicate message detected, skipping:", messageId);
+                    return;
+                }
+                
+                // Add to processed set
+                processedMessages.current.add(messageId);
                 
                 // Log the exercise to the user's history
                 const success = addExercise({
@@ -48,9 +63,12 @@ const RepBotPage = () => {
         };
     }, [isAuthenticated, addExercise]);
     
-    // For backwards compatibility, check localStorage as a fallback
+    // For backwards compatibility, check localStorage as a fallback (with duplicate prevention)
     useEffect(() => {
         if (!isAuthenticated) return;
+        
+        // Keep track of processed localStorage items
+        const processedStorageItems = new Set();
         
         const checkLocalStorageForExercises = () => {
             try {
@@ -61,6 +79,14 @@ const RepBotPage = () => {
                     // Parse the stored exercise data
                     const exerciseData = JSON.parse(storedExercise);
                     
+                    // Create a unique ID for this storage entry
+                    const storageId = `${exerciseData.type}-${exerciseData.count}-${exerciseData.timestamp}`;
+                    
+                    // Skip if we've already processed this exercise
+                    if (processedStorageItems.has(storageId)) {
+                        return;
+                    }
+                    
                     // Check if this is a new exercise (hasn't been processed yet)
                     if (!exerciseData.processed) {
                         // Log the exercise
@@ -70,13 +96,16 @@ const RepBotPage = () => {
                         });
                         
                         if (success) {
-                            showNotification("success", `${exerciseData.count} rep(s) of ${formatExerciseType(exerciseData.type)} saved to your log!`);
+                            showNotification("success", `${exerciseData.count} rep${exerciseData.count !== 1 ? "s" : ""} of ${formatExerciseType(exerciseData.type)} saved to your log!`);
                             
                             // Mark as processed and save back to localStorage
                             localStorage.setItem(repbotExerciseKey, JSON.stringify({
                                 ...exerciseData,
                                 processed: true
                             }));
+                            
+                            // Add to processed set
+                            processedStorageItems.add(storageId);
                         }
                     }
                 }
@@ -86,7 +115,7 @@ const RepBotPage = () => {
         };
         
         // Check for exercises periodically
-        const interval = setInterval(checkLocalStorageForExercises, 1000);
+        const interval = setInterval(checkLocalStorageForExercises, 2000);
         
         // Also check when the component mounts
         checkLocalStorageForExercises();
