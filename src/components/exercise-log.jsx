@@ -1,10 +1,24 @@
 import { useExercises } from "@/contexts/exercise-context";
-import { DumbbellIcon, Calendar, Activity, ChevronRight } from "lucide-react";
-import { useState } from "react";
+import { DumbbellIcon, Calendar, Activity, ChevronRight, RefreshCw } from "lucide-react";
+import { useState, useEffect } from "react";
 
 export const ExerciseLog = ({ maxItems = 5 }) => {
     const { getExercises, isLoading } = useExercises();
     const [expandedView, setExpandedView] = useState(false);
+    const [exercises, setExercises] = useState([]);
+    const [refreshKey, setRefreshKey] = useState(0);
+    
+    // Get exercises and update when new ones are added
+    useEffect(() => {
+        setExercises(getExercises(expandedView ? undefined : maxItems));
+        
+        // Set up an interval to refresh the exercise list
+        const refreshInterval = setInterval(() => {
+            setRefreshKey(prev => prev + 1);
+        }, 5000); // Check every 5 seconds
+        
+        return () => clearInterval(refreshInterval);
+    }, [getExercises, expandedView, maxItems, refreshKey]);
     
     // Format date nicely
     const formatDate = (isoDate) => {
@@ -49,7 +63,10 @@ export const ExerciseLog = ({ maxItems = 5 }) => {
         return names[exerciseType] || exerciseType;
     };
     
-    const exercises = getExercises(expandedView ? undefined : maxItems);
+    // Manual refresh function
+    const handleRefresh = () => {
+        setExercises(getExercises(expandedView ? undefined : maxItems));
+    };
     
     if (isLoading) {
         return (
@@ -64,6 +81,13 @@ export const ExerciseLog = ({ maxItems = 5 }) => {
             <div className="rounded-xl bg-white p-6 shadow-md">
                 <div className="mb-4 flex items-center justify-between">
                     <h2 className="text-xl font-bold">Exercise Log</h2>
+                    <button
+                        onClick={handleRefresh}
+                        className="flex items-center gap-1 text-sm font-medium text-[#1e628c] hover:underline"
+                    >
+                        <RefreshCw className="h-4 w-4" strokeWidth={2} />
+                        Refresh
+                    </button>
                 </div>
                 <div className="flex h-40 flex-col items-center justify-center rounded-lg bg-slate-50 p-6 text-center">
                     <DumbbellIcon className="mb-2 h-8 w-8 text-slate-400" />
@@ -78,13 +102,22 @@ export const ExerciseLog = ({ maxItems = 5 }) => {
         <div className="rounded-xl bg-white p-6 shadow-md">
             <div className="mb-4 flex items-center justify-between">
                 <h2 className="text-xl font-bold">Exercise Log</h2>
-                <button
-                    onClick={() => setExpandedView(!expandedView)}
-                    className="flex items-center gap-1 text-sm font-medium text-[#1e628c] hover:underline"
-                >
-                    {expandedView ? "Show Less" : "View All"}
-                    <ChevronRight className="h-4 w-4" strokeWidth={2} />
-                </button>
+                <div className="flex items-center gap-3">
+                    <button
+                        onClick={handleRefresh}
+                        className="flex items-center gap-1 text-sm font-medium text-[#1e628c] hover:underline"
+                        title="Refresh exercise list"
+                    >
+                        <RefreshCw className="h-4 w-4" strokeWidth={2} />
+                    </button>
+                    <button
+                        onClick={() => setExpandedView(!expandedView)}
+                        className="flex items-center gap-1 text-sm font-medium text-[#1e628c] hover:underline"
+                    >
+                        {expandedView ? "Show Less" : "View All"}
+                        <ChevronRight className="h-4 w-4" strokeWidth={2} />
+                    </button>
+                </div>
             </div>
             
             <div className="space-y-4">
@@ -107,6 +140,15 @@ export const ExerciseLog = ({ maxItems = 5 }) => {
                     </div>
                 ))}
             </div>
+            
+            {exercises.length > 0 && !expandedView && exercises.length >= maxItems && (
+                <button
+                    onClick={() => setExpandedView(true)}
+                    className="mt-4 w-full rounded-lg border border-slate-200 py-2 text-center text-sm font-medium text-slate-600 hover:bg-slate-50"
+                >
+                    Show All ({getExercises().length}) Exercises
+                </button>
+            )}
         </div>
     );
 };
