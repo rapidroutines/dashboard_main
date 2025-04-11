@@ -1,221 +1,131 @@
-import { Play, BarChart2, TrendingUp, LucideActivity, User, Lock, CalendarClock } from "lucide-react";
+import { BookOpen, Dumbbell, Lock } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useAuth } from "@/contexts/auth-context";
 import { ExerciseLog } from "@/components/exercise-log";
-import { useExercises } from "@/contexts/exercise-context";
+import { SavedExercises } from "@/components/saved-exercises";
 
 const DashboardPage = () => {
   const brandColor = "#1e628c";
   const { isAuthenticated, user } = useAuth();
-  const { getExercises } = useExercises();
-  
-  // Get total exercise count from all exercises
-  const totalExercises = getExercises().reduce((total, exercise) => total + exercise.count, 0);
-
-  // Mock user metrics/stats data
-  const userMetrics = {
-    workoutsCompleted: getExercises().length, // Use real data for workout count
-    currentStreak: 7,
-    totalMinutes: Math.max(totalExercises * 3, 0), // Estimate 3 minutes per rep
-    monthlyProgress: 78,
-  };
   
   return (
     <div className="relative">
       {/* Entire Dashboard Content - Blurred when not authenticated */}
-      <div className={`flex flex-col gap-6 p-4 ${!isAuthenticated ? "blur-md" : ""}`}>
+      <div className={`flex flex-col gap-6 ${!isAuthenticated ? "blur-md" : ""}`}>
         {/* Welcome Banner */}
         <div className="rounded-xl py-8 px-6 text-white" style={{ backgroundColor: brandColor }}>
           <h1 className="text-3xl font-bold">Welcome to RapidRoutines AI</h1>
           {isAuthenticated && user?.name && (
             <p className="mt-2 text-xl">Hello, {user.name}!</p>
           )}
+          <p className="mt-4 text-white/90">
+            Track your workouts, save your favorite exercises, and manage your fitness journey all in one place.
+          </p>
         </div>
 
-        {/* User Metrics Section */}
-        <div className="rounded-xl bg-white shadow-md p-6">
-          <div className="flex justify-between items-center mb-4">
-            <h2 className="text-xl font-bold">Your Fitness Metrics</h2>
-            
-            {isAuthenticated && (
-              <div className="bg-slate-100 px-3 py-1 rounded-full text-sm text-slate-700">
-                <span className="font-medium">{user?.email}</span>
-              </div>
-            )}
-          </div>
+        {/* Grid layout for main content */}
+        <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+          {/* Exercise Log Section - only show when authenticated */}
+          {isAuthenticated && <ExerciseLog maxItems={6} />}
           
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-            {/* Workouts Completed */}
-            <div className="bg-slate-50 rounded-lg p-4 border border-slate-100">
-              <div className="flex items-center justify-between">
-                <p className="text-slate-600">Workouts Completed</p>
-                <div className="bg-green-100 p-2 rounded-full">
-                  <BarChart2 size={18} className="text-green-600" />
-                </div>
+          {/* Saved Exercises Section */}
+          <SavedExercises maxItems={6} />
+        </div>
+
+        {/* Quick Access Section */}
+        <div className="rounded-xl bg-white p-6 shadow-md">
+          <h2 className="mb-4 text-xl font-bold">Quick Access</h2>
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3">
+            <Link 
+              to="/library" 
+              className="flex items-center gap-3 rounded-lg border border-slate-100 bg-slate-50 p-4 transition-colors hover:border-slate-200 hover:bg-slate-100"
+            >
+              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-[#1e628c]/10">
+                <BookOpen className="h-5 w-5 text-[#1e628c]" />
               </div>
-              <p className="text-3xl font-bold mt-2">{userMetrics.workoutsCompleted}</p>
-              <p className="text-sm text-green-600 flex items-center mt-1">
-                <TrendingUp size={14} className="mr-1" />
-                +12% from last month
-              </p>
-            </div>
-            
-            {/* Current Streak */}
-            <div className="bg-slate-50 rounded-lg p-4 border border-slate-100">
-              <div className="flex items-center justify-between">
-                <p className="text-slate-600">Current Streak</p>
-                <div className="bg-orange-100 p-2 rounded-full">
-                  <LucideActivity size={18} className="text-orange-600" />
-                </div>
+              <div>
+                <p className="font-medium text-slate-900">Exercise Library</p>
+                <p className="text-sm text-slate-500">Browse exercises and save favorites</p>
               </div>
-              <p className="text-3xl font-bold mt-2">{userMetrics.currentStreak} days</p>
-              <p className="text-sm text-orange-600 flex items-center mt-1">
-                <TrendingUp size={14} className="mr-1" />
-                Keep it up!
-              </p>
-            </div>
-            
-            {/* Total Minutes */}
-            <div className="bg-slate-50 rounded-lg p-4 border border-slate-100">
-              <div className="flex items-center justify-between">
-                <p className="text-slate-600">Total Minutes</p>
-                <div className="bg-blue-100 p-2 rounded-full">
-                  <BarChart2 size={18} className="text-blue-600" />
-                </div>
+            </Link>
+
+            <Link 
+              to="/repbot" 
+              className="flex items-center gap-3 rounded-lg border border-slate-100 bg-slate-50 p-4 transition-colors hover:border-slate-200 hover:bg-slate-100"
+            >
+              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-[#1e628c]/10">
+                <Dumbbell className="h-5 w-5 text-[#1e628c]" />
               </div>
-              <p className="text-3xl font-bold mt-2">{userMetrics.totalMinutes}</p>
-              <p className="text-sm text-blue-600 flex items-center mt-1">
-                <TrendingUp size={14} className="mr-1" />
-                +{totalExercises * 3} this week
-              </p>
-            </div>
-            
-            {/* Monthly Progress */}
-            <div className="bg-slate-50 rounded-lg p-4 border border-slate-100">
-              <div className="flex items-center justify-between">
-                <p className="text-slate-600">Monthly Goal</p>
-                <div className="bg-purple-100 p-2 rounded-full">
-                  <User size={18} className="text-purple-600" />
-                </div>
+              <div>
+                <p className="font-medium text-slate-900">RepBot</p>
+                <p className="text-sm text-slate-500">Log workouts with AI form tracking</p>
               </div>
-              <p className="text-3xl font-bold mt-2">{userMetrics.monthlyProgress}%</p>
-              <div className="w-full bg-slate-200 rounded-full h-2 mt-2">
-                <div 
-                  className="bg-purple-600 h-2 rounded-full" 
-                  style={{ width: `${userMetrics.monthlyProgress}%` }}
-                ></div>
+            </Link>
+
+            <Link 
+              to="/rapidtree" 
+              className="flex items-center gap-3 rounded-lg border border-slate-100 bg-slate-50 p-4 transition-colors hover:border-slate-200 hover:bg-slate-100"
+            >
+              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-[#1e628c]/10">
+                <svg className="h-5 w-5 text-[#1e628c]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                </svg>
+              </div>
+              <div>
+                <p className="font-medium text-slate-900">Progression Tree</p>
+                <p className="text-sm text-slate-500">Track your exercise progression</p>
+              </div>
+            </Link>
+          </div>
+        </div>
+        
+        {/* User Profile Section - Only visible when authenticated */}
+        {isAuthenticated && (
+          <div className="rounded-xl bg-white p-6 shadow-md">
+            <h2 className="mb-4 text-xl font-bold">Your Profile</h2>
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+              <div className="rounded-lg bg-slate-50 p-4">
+                <p className="text-sm text-slate-500">Name</p>
+                <p className="font-medium">{user?.name || "Not provided"}</p>
+              </div>
+              <div className="rounded-lg bg-slate-50 p-4">
+                <p className="text-sm text-slate-500">Email</p>
+                <p className="font-medium">{user?.email}</p>
+              </div>
+              <div className="rounded-lg bg-slate-50 p-4">
+                <p className="text-sm text-slate-500">Member since</p>
+                <p className="font-medium">{user?.joined ? new Date(user.joined).toLocaleDateString() : "Today"}</p>
+              </div>
+              <div className="rounded-lg bg-slate-50 p-4">
+                <p className="text-sm text-slate-500">Last sign in</p>
+                <p className="font-medium">{user?.lastLogin ? new Date(user.lastLogin).toLocaleString() : "Just now"}</p>
               </div>
             </div>
           </div>
-          
-          {/* User Profile Summary - Only visible when authenticated */}
-          {isAuthenticated && (
-            <div className="mt-6 bg-slate-50 rounded-lg p-4 border border-slate-100">
-              <h3 className="font-medium text-slate-900 mb-2">Your Profile</h3>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div>
-                  <p className="text-sm text-slate-500">Name</p>
-                  <p className="font-medium">{user?.name || "Not provided"}</p>
-                </div>
-                <div>
-                  <p className="text-sm text-slate-500">Email</p>
-                  <p className="font-medium">{user?.email}</p>
-                </div>
-                <div>
-                  <p className="text-sm text-slate-500">Member since</p>
-                  <p className="font-medium">{user?.joined ? new Date(user.joined).toLocaleDateString() : "Today"}</p>
-                </div>
-                <div>
-                  <p className="text-sm text-slate-500">Last sign in</p>
-                  <p className="font-medium">{user?.lastLogin ? new Date(user.lastLogin).toLocaleString() : "Just now"}</p>
-                </div>
-              </div>
-            </div>
-          )}
-        </div>
-
-        {/* Exercise Log Section - only show when authenticated */}
-        {isAuthenticated && <ExerciseLog maxItems={5} />}
-
-        {/* Recent Activity Section */}
-        <div className="rounded-xl bg-white shadow-md p-6">
-          <h2 className="text-xl font-bold mb-4">Suggested Activities</h2>
-          <div className="space-y-4">
-            <div className="flex items-center gap-3 border-b border-slate-100 pb-3">
-              <div className="bg-green-100 p-2 rounded-full">
-                <CalendarClock size={18} className="text-green-600" />
-              </div>
-              <div>
-                <p className="font-medium">Try Push-Up Challenge</p>
-                <p className="text-sm text-slate-500">Build upper body strength with proper form</p>
-              </div>
-            </div>
-            <div className="flex items-center gap-3 border-b border-slate-100 pb-3">
-              <div className="bg-blue-100 p-2 rounded-full">
-                <CalendarClock size={18} className="text-blue-600" />
-              </div>
-              <div>
-                <p className="font-medium">Master Squats</p>
-                <p className="text-sm text-slate-500">Perfect your form with our AI guidance</p>
-              </div>
-            </div>
-            <div className="flex items-center gap-3">
-              <div className="bg-purple-100 p-2 rounded-full">
-                <CalendarClock size={18} className="text-purple-600" />
-              </div>
-              <div>
-                <p className="font-medium">Try Core Strength Program</p>
-                <p className="text-sm text-slate-500">Start with Russian Twists for a strong core</p>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Feature Showcase */}
-        <div className="flex justify-center w-full">
-          <div className="w-full max-w-3xl">
-            <div className="relative rounded-xl overflow-hidden shadow-md border border-slate-200">
-              <div className="aspect-video bg-slate-800 flex items-center justify-center">
-                <div className="absolute inset-0 bg-gradient-to-b from-black/10 to-black/50 flex items-center justify-center">
-                  <button 
-                    className="bg-white/90 hover:bg-white rounded-full w-14 h-14 flex items-center justify-center transition-all hover:scale-105"
-                    style={{ boxShadow: `0 0 0 3px ${brandColor}40` }}
-                  >
-                    <Play size={28} style={{ color: brandColor, fill: brandColor }} />
-                  </button>
-                </div>
-                
-                <div className="absolute bottom-4 left-4">
-                  <h2 className="text-white text-lg font-bold">Discover AI-Assisted Fitness</h2>
-                  <p className="text-white/70 text-sm">Transform your workout with our intelligent tools</p>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
+        )}
       </div>
       
       {/* Sign-in overlay - Only shown when not authenticated */}
       {!isAuthenticated && (
         <div className="absolute inset-0 flex items-center justify-center bg-white/70 backdrop-blur-sm">
-          <div className="bg-white rounded-xl p-8 shadow-lg max-w-md text-center">
-            <div className="bg-[#1e628c]/10 p-4 rounded-full inline-block mb-4">
+          <div className="max-w-md rounded-xl bg-white p-8 text-center shadow-lg">
+            <div className="mb-4 inline-block rounded-full bg-[#1e628c]/10 p-4">
               <Lock size={32} className="text-[#1e628c]" />
             </div>
-            <h3 className="text-2xl font-bold text-slate-900 mb-2">Sign in to Access Your Dashboard</h3>
-            <p className="text-slate-600 mb-6">
-              Create an account or sign in to view your personalized fitness metrics, track your progress, and access all features.
+            <h3 className="mb-2 text-2xl font-bold text-slate-900">Sign in to Access Your Dashboard</h3>
+            <p className="mb-6 text-slate-600">
+              Create an account or sign in to manage your saved exercises and track your workouts.
             </p>
-            <div className="flex flex-col sm:flex-row gap-3 justify-center">
+            <div className="flex flex-col justify-center gap-3 sm:flex-row">
               <Link 
                 to="/signin" 
-                className="px-6 py-3 bg-[#1e628c] text-white rounded-lg font-medium hover:bg-[#174e70] w-full"
+                className="w-full rounded-lg bg-[#1e628c] px-6 py-3 font-medium text-white hover:bg-[#174e70]"
               >
                 Sign in
               </Link>
               <Link 
                 to="/signup" 
-                className="px-6 py-3 border border-slate-300 text-slate-700 rounded-lg font-medium hover:bg-slate-50 w-full"
+                className="w-full rounded-lg border border-slate-300 px-6 py-3 font-medium text-slate-700 hover:bg-slate-50"
               >
                 Create account
               </Link>
