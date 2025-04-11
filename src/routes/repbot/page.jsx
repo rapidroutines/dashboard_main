@@ -6,64 +6,52 @@ import { useExercises } from "@/contexts/exercise-context";
 const RepBotPage = () => {
     const [isLoading, setIsLoading] = useState(true);
     const [notification, setNotification] = useState(null);
-    const { isAuthenticated, user } = useAuth();
+    const { isAuthenticated } = useAuth();
     const { addExercise } = useExercises();
     const iframeRef = useRef(null);
-    const lastRepCountRef = useRef(0);
     
-    // Poll the exercise counter value from the iframe
+    // Listen for messages from the iframe
     useEffect(() => {
         if (!isAuthenticated) return; // Only track for authenticated users
         
-        // Check periodically for rep count increases
-        const interval = setInterval(() => {
-            try {
-                if (iframeRef.current && !isLoading) {
-                    // Try to access the document within the iframe
-                    const iframeDoc = iframeRef.current.contentWindow.document;
-                    
-                    // Get the current rep count and exercise type
-                    const repCountElement = iframeDoc.getElementById("rep-counter");
-                    const exerciseTypeElement = iframeDoc.getElementById("exercise-type");
-                    
-                    if (repCountElement && exerciseTypeElement) {
-                        const currentRepCount = parseInt(repCountElement.textContent || "0");
-                        const exerciseType = exerciseTypeElement.value;
-                        
-                        // Check if the rep count has increased
-                        if (currentRepCount > lastRepCountRef.current) {
-                            const repsCompleted = currentRepCount - lastRepCountRef.current;
-                            
-                            // Log the exercise
-                            const success = addExercise({
-                                exerciseType: exerciseType,
-                                count: repsCompleted
-                            });
-                            
-                            if (success) {
-                                showNotification("success", `${repsCompleted} rep(s) of ${formatExerciseType(exerciseType)} saved to your log!`);
-                            }
-                            
-                            // Update the last known rep count
-                            lastRepCountRef.current = currentRepCount;
-                        }
-                    }
-                }
-            } catch (error) {
-                // This will likely fail due to cross-origin restrictions, which is expected
-                // We'll use our backup method (localStorage sync) instead
-                console.log("Cross-origin iframe access failed (expected):", error.message);
+        const handleMessage = (event) => {
+            // Only accept messages from our iframe source domains
+            if (
+                event.origin !== "https://render-repbot.vercel.app" && 
+                event.origin !== "https://render-repbot.onrender.com"
+            ) {
+                return;
             }
-        }, 1000);
+            
+            // Check if it's an exercise completion message
+            if (event.data && event.data.type === "exerciseCompleted") {
+                const { exerciseType, repCount } = event.data;
+                
+                // Log the exercise to the user's history
+                const success = addExercise({
+                    exerciseType: exerciseType,
+                    count: repCount
+                });
+                
+                if (success) {
+                    showNotification("success", `${repCount} rep${repCount !== 1 ? "s" : ""} of ${formatExerciseType(exerciseType)} saved to your log!`);
+                }
+            }
+        };
         
-        return () => clearInterval(interval);
-    }, [isAuthenticated, isLoading, addExercise]);
+        // Add the event listener
+        window.addEventListener("message", handleMessage);
+        
+        // Clean up
+        return () => {
+            window.removeEventListener("message", handleMessage);
+        };
+    }, [isAuthenticated, addExercise]);
     
-    // Check localStorage for exercise updates (this is our backup method)
+    // For backwards compatibility, check localStorage as a fallback
     useEffect(() => {
         if (!isAuthenticated) return;
         
-        // This function checks for changes in localStorage that might indicate a new exercise
         const checkLocalStorageForExercises = () => {
             try {
                 const repbotExerciseKey = "repbot_lastExercise";
@@ -105,54 +93,6 @@ const RepBotPage = () => {
         
         return () => clearInterval(interval);
     }, [isAuthenticated, addExercise]);
-    
-    // Add localStorage interface script to the iframe
-    useEffect(() => {
-        if (iframeRef.current && !isLoading) {
-            try {
-                // Try to inject our script into the iframe
-                const script = document.createElement('script');
-                script.textContent = `
-                    // Monitor rep counter for changes
-                    (function() {
-                        let lastReportedCount = 0;
-                        
-                        // Check for changes periodically
-                        setInterval(() => {
-                            const repCountElement = document.getElementById("rep-counter");
-                            const exerciseTypeElement = document.getElementById("exercise-type");
-                            
-                            if (repCountElement && exerciseTypeElement) {
-                                const currentCount = parseInt(repCountElement.textContent || "0");
-                                const exerciseType = exerciseTypeElement.value;
-                                
-                                // If rep count increased, save to localStorage
-                                if (currentCount > lastReportedCount) {
-                                    const newReps = currentCount - lastReportedCount;
-                                    
-                                    // Store in localStorage for the parent to read
-                                    localStorage.setItem("repbot_lastExercise", JSON.stringify({
-                                        type: exerciseType,
-                                        count: newReps,
-                                        timestamp: new Date().toISOString(),
-                                        processed: false
-                                    }));
-                                    
-                                    lastReportedCount = currentCount;
-                                }
-                            }
-                        }, 500);
-                    })();
-                `;
-                
-                // This will likely fail due to cross-origin restrictions, which is expected
-                iframeRef.current.contentWindow.document.head.appendChild(script);
-            } catch (error) {
-                // Expected error due to cross-origin restrictions
-                console.log("Could not inject script into iframe (expected):", error.message);
-            }
-        }
-    }, [isLoading]);
     
     // Format exercise type name nicely
     const formatExerciseType = (exerciseType) => {
@@ -211,7 +151,7 @@ const RepBotPage = () => {
                 
                 <iframe 
                     ref={iframeRef}
-                    src="https://render-repbot.vercel.app/?enableLogging=true" 
+                    src="https://render-repbot.vercel.app/" 
                     className="w-full h-full border-0"
                     title="RepBot AI Exercise Counter"
                     onLoad={() => setIsLoading(false)}
