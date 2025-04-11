@@ -46,19 +46,29 @@ const SignUpPage = () => {
         
         // Simulate registration - in a real app, this would be an API call
         setTimeout(() => {
-            // Create user object with form data
-            const userData = {
-                name,
-                email
-            };
-            
-            // Store user data and log them in
-            login(userData);
-            
-            // Redirect to dashboard
-            navigate("/");
-            
-            setIsLoading(false);
+            try {
+                // Create user object with form data
+                const userData = {
+                    name,
+                    email,
+                    joined: new Date().toISOString()
+                };
+                
+                // Store user data and log them in
+                const success = login(userData);
+                
+                if (success) {
+                    console.log("Signup successful, redirecting to dashboard");
+                    navigate("/");
+                } else {
+                    setErrorMessage("Failed to create account. Please try again.");
+                }
+            } catch (error) {
+                console.error("Signup error:", error);
+                setErrorMessage("An error occurred. Please try again.");
+            } finally {
+                setIsLoading(false);
+            }
         }, 1500);
     };
 

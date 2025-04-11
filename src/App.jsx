@@ -21,15 +21,21 @@ function App() {
                         {/* Public routes */}
                         <Route path="/signin" element={<SignInPage />} />
                         <Route path="/signup" element={<SignUpPage />} />
+                        
+                        {/* Public dashboard with conditional content */}
+                        <Route path="/" element={
+                            <Layout>
+                                <DashboardPage />
+                            </Layout>
+                        } />
+
+                        <Route path="/" element={
+                            <Layout>
+                                <DashboardPage />
+                            </Layout>
+                        } />
 
                         {/* Protected routes */}
-                        <Route path="/" element={
-                            <ProtectedRoute>
-                                <Layout>
-                                    <DashboardPage />
-                                </Layout>
-                            </ProtectedRoute>
-                        } />
                         <Route path="/analytics" element={
                             <ProtectedRoute>
                                 <Layout>

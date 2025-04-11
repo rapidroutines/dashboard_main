@@ -28,16 +28,34 @@ const SignInPage = () => {
         
         // Simulate authentication - in a real app, this would be an API call
         setTimeout(() => {
-            // For demo purposes, accept any valid-looking email and password
-            if (email.includes("@") && password.length >= 6) {
-                // Create user object and log in
-                const userData = { email };
-                login(userData);
-                navigate("/");
-            } else {
-                setErrorMessage("Invalid credentials. Please try again.");
+            try {
+                // For demo purposes, accept any valid-looking email and password
+                if (email.includes("@") && password.length >= 6) {
+                    // Create user object with necessary information
+                    const userData = { 
+                        email,
+                        name: email.split('@')[0], // Using part of email as name for demo
+                        lastLogin: new Date().toISOString()
+                    };
+                    
+                    // Call login function from auth context
+                    const success = login(userData);
+                    
+                    if (success) {
+                        console.log("Login successful, redirecting to dashboard");
+                        navigate("/");
+                    } else {
+                        setErrorMessage("Failed to login. Please try again.");
+                    }
+                } else {
+                    setErrorMessage("Invalid credentials. Please try again.");
+                }
+            } catch (error) {
+                console.error("Login error:", error);
+                setErrorMessage("An error occurred. Please try again.");
+            } finally {
+                setIsLoading(false);
             }
-            setIsLoading(false);
         }, 1500);
     };
 
