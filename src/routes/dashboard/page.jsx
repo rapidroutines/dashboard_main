@@ -1,17 +1,22 @@
-import React from "react";
 import { Play, BarChart2, TrendingUp, LucideActivity, User, Lock, CalendarClock } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useAuth } from "@/contexts/auth-context";
+import { ExerciseLog } from "@/components/exercise-log";
+import { useExercises } from "@/contexts/exercise-context";
 
 const DashboardPage = () => {
   const brandColor = "#1e628c";
   const { isAuthenticated, user } = useAuth();
+  const { getExercises } = useExercises();
+  
+  // Get total exercise count from all exercises
+  const totalExercises = getExercises().reduce((total, exercise) => total + exercise.count, 0);
 
   // Mock user metrics/stats data
   const userMetrics = {
-    workoutsCompleted: 24,
+    workoutsCompleted: getExercises().length, // Use real data for workout count
     currentStreak: 7,
-    totalMinutes: 648,
+    totalMinutes: Math.max(totalExercises * 3, 0), // Estimate 3 minutes per rep
     monthlyProgress: 78,
   };
   
@@ -81,7 +86,7 @@ const DashboardPage = () => {
               <p className="text-3xl font-bold mt-2">{userMetrics.totalMinutes}</p>
               <p className="text-sm text-blue-600 flex items-center mt-1">
                 <TrendingUp size={14} className="mr-1" />
-                +48 this week
+                +{totalExercises * 3} this week
               </p>
             </div>
             
@@ -129,17 +134,20 @@ const DashboardPage = () => {
           )}
         </div>
 
+        {/* Exercise Log Section - only show when authenticated */}
+        {isAuthenticated && <ExerciseLog maxItems={5} />}
+
         {/* Recent Activity Section */}
         <div className="rounded-xl bg-white shadow-md p-6">
-          <h2 className="text-xl font-bold mb-4">Recent Activity</h2>
+          <h2 className="text-xl font-bold mb-4">Suggested Activities</h2>
           <div className="space-y-4">
             <div className="flex items-center gap-3 border-b border-slate-100 pb-3">
               <div className="bg-green-100 p-2 rounded-full">
                 <CalendarClock size={18} className="text-green-600" />
               </div>
               <div>
-                <p className="font-medium">Completed Push-Up Challenge</p>
-                <p className="text-sm text-slate-500">Yesterday at 5:30 PM</p>
+                <p className="font-medium">Try Push-Up Challenge</p>
+                <p className="text-sm text-slate-500">Build upper body strength with proper form</p>
               </div>
             </div>
             <div className="flex items-center gap-3 border-b border-slate-100 pb-3">
@@ -147,8 +155,8 @@ const DashboardPage = () => {
                 <CalendarClock size={18} className="text-blue-600" />
               </div>
               <div>
-                <p className="font-medium">Achieved New Personal Best</p>
-                <p className="text-sm text-slate-500">2 days ago at 6:15 AM</p>
+                <p className="font-medium">Master Squats</p>
+                <p className="text-sm text-slate-500">Perfect your form with our AI guidance</p>
               </div>
             </div>
             <div className="flex items-center gap-3">
@@ -156,8 +164,8 @@ const DashboardPage = () => {
                 <CalendarClock size={18} className="text-purple-600" />
               </div>
               <div>
-                <p className="font-medium">Started Core Strength Program</p>
-                <p className="text-sm text-slate-500">3 days ago at 7:45 AM</p>
+                <p className="font-medium">Try Core Strength Program</p>
+                <p className="text-sm text-slate-500">Start with Russian Twists for a strong core</p>
               </div>
             </div>
           </div>
