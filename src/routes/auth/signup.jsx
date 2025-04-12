@@ -53,15 +53,37 @@ const SignUpPage = () => {
         // Simulate registration - in a real app, this would be an API call
         setTimeout(() => {
             try {
-                // Create user object with form data
+                // Check if email already exists
+                const storedUsers = JSON.parse(localStorage.getItem('registeredUsers') || '[]');
+                const existingUser = storedUsers.find(user => user.email === email);
+                
+                if (existingUser) {
+                    setErrorMessage("An account with this email already exists");
+                    setIsLoading(false);
+                    return;
+                }
+                
+                // Create user object with form data and password
                 const userData = {
                     name,
                     email,
+                    password, // Storing password in localStorage (in a real app, this would be hashed)
                     joined: new Date().toISOString()
                 };
                 
+                // Add to registered users
+                const updatedUsers = [...storedUsers, userData];
+                localStorage.setItem('registeredUsers', JSON.stringify(updatedUsers));
+                
+                // Create user object for login (without password)
+                const loginUserData = {
+                    name,
+                    email,
+                    joined: userData.joined
+                };
+                
                 // Store user data and log them in
-                const success = login(userData);
+                const success = login(loginUserData);
                 
                 if (success) {
                     console.log("Signup successful, redirecting to dashboard");

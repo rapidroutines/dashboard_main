@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import { Eye, EyeOff } from "lucide-react";
+import { Eye, EyeOff, ArrowLeft, CheckCircle } from "lucide-react";
 import { useAuth } from "@/contexts/auth-context";
 import { cn } from "@/utils/cn";
 import logoLight from "@/assets/main_logo.png";
@@ -8,13 +8,17 @@ import logoLight from "@/assets/main_logo.png";
 const SignInPage = () => {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
+    const [newPassword, setNewPassword] = useState("");
+    const [confirmNewPassword, setConfirmNewPassword] = useState("");
     const [showPassword, setShowPassword] = useState(false);
+    const [showNewPassword, setShowNewPassword] = useState(false);
     const [errorMessage, setErrorMessage] = useState("");
     const [isLoading, setIsLoading] = useState(false);
     const [rememberMe, setRememberMe] = useState(false);
     const [forgotPasswordOpen, setForgotPasswordOpen] = useState(false);
-    const [resetEmail, setResetEmail] = useState("");
     const [resetSuccess, setResetSuccess] = useState(false);
+    const [resetStage, setResetStage] = useState("email"); // email, verify, reset
+    const [userFound, setUserFound] = useState(false);
     
     const navigate = useNavigate();
     const { login } = useAuth();
@@ -81,27 +85,101 @@ const SignInPage = () => {
 
     const handleForgotPassword = (e) => {
         e.preventDefault();
+        setErrorMessage("");
         
-        if (!resetEmail || !resetEmail.includes('@')) {
+        if (!email || !email.includes('@')) {
             setErrorMessage("Please enter a valid email address");
             return;
         }
         
         setIsLoading(true);
         
-        // Simulate password reset email - in a real app, this would be an API call
+        // Check if user exists in localStorage
         setTimeout(() => {
-            setIsLoading(false);
-            setResetSuccess(true);
-            setErrorMessage("");
+            // First, check if there's a user with this email
+            const user = localStorage.getItem("user");
+            let foundUser = false;
             
-            // Auto-close the forgot password form after 3 seconds
-            setTimeout(() => {
-                setForgotPasswordOpen(false);
-                setResetSuccess(false);
-                setResetEmail("");
-            }, 3000);
+            if (user) {
+                try {
+                    const parsedUser = JSON.parse(user);
+                    if (parsedUser.email === email) {
+                        foundUser = true;
+                        setUserFound(true);
+                        setResetStage("verify"); // Move to verification stage
+                    }
+                } catch (error) {
+                    console.error("Error parsing user from localStorage:", error);
+                }
+            }
+            
+            if (!foundUser) {
+                setErrorMessage("No account found with this email address.");
+            }
+            
+            setIsLoading(false);
+        }, 1000);
+    };
+    
+    const handlePasswordReset = (e) => {
+        e.preventDefault();
+        setErrorMessage("");
+        
+        if (!newPassword || newPassword.length < 6) {
+            setErrorMessage("Password must be at least 6 characters long");
+            return;
+        }
+        
+        if (newPassword !== confirmNewPassword) {
+            setErrorMessage("Passwords do not match");
+            return;
+        }
+        
+        setIsLoading(true);
+        
+        // Update the user's password in localStorage
+        setTimeout(() => {
+            try {
+                const userStr = localStorage.getItem("user");
+                if (userStr) {
+                    const user = JSON.parse(userStr);
+                    if (user.email === email) {
+                        // In a real application, you would hash the password before storing it
+                        // Here we're just updating the user object
+                        user.password = newPassword; // Store password (in real app, store hashed password)
+                        localStorage.setItem("user", JSON.stringify(user));
+                        
+                        setResetSuccess(true);
+                        setResetStage("success");
+                        
+                        // Auto-close after successful reset and return to login
+                        setTimeout(() => {
+                            setForgotPasswordOpen(false);
+                            setResetStage("email");
+                            setResetSuccess(false);
+                            setNewPassword("");
+                            setConfirmNewPassword("");
+                        }, 3000);
+                    } else {
+                        setErrorMessage("User email mismatch. Please try again.");
+                    }
+                } else {
+                    setErrorMessage("User not found. Please try again.");
+                }
+            } catch (error) {
+                console.error("Error updating password:", error);
+                setErrorMessage("An error occurred while resetting your password.");
+            } finally {
+                setIsLoading(false);
+            }
         }, 1500);
+    };
+
+    // Return to the email input stage
+    const handleBackToEmail = () => {
+        setResetStage("email");
+        setUserFound(false);
+        setErrorMessage("");
     };
 
     return (
@@ -120,7 +198,10 @@ const SignInPage = () => {
                         <>
                             <h1 className="text-2xl font-bold text-slate-800">Reset your password</h1>
                             <p className="mt-2 text-center text-slate-600">
-                                Enter your email address and we'll send you a link to reset your password.
+                                {resetStage === "email" && "Enter your email address to reset your password."}
+                                {resetStage === "verify" && "Verify your account to continue."}
+                                {resetStage === "reset" && "Create a new password for your account."}
+                                {resetStage === "success" && "Your password has been reset successfully!"}
                             </p>
                         </>
                     )}
@@ -133,8 +214,9 @@ const SignInPage = () => {
                 )}
 
                 {resetSuccess && (
-                    <div className="mb-4 rounded-md bg-green-50 p-3 text-sm text-green-500">
-                        Password reset link sent to your email!
+                    <div className="mb-4 rounded-md bg-green-50 p-3 text-sm text-green-500 flex items-center">
+                        <CheckCircle className="h-4 w-4 mr-2" />
+                        Password reset successfully! You can now log in with your new password.
                     </div>
                 )}
 
@@ -218,45 +300,195 @@ const SignInPage = () => {
                         </button>
                     </form>
                 ) : (
-                    <form onSubmit={handleForgotPassword} className="space-y-4">
-                        <div>
-                            <label htmlFor="reset-email" className="block text-sm font-medium text-slate-700">
-                                Email
-                            </label>
-                            <input
-                                id="reset-email"
-                                type="email"
-                                value={resetEmail}
-                                onChange={(e) => setResetEmail(e.target.value)}
-                                className="mt-1 block w-full rounded-md border border-slate-300 px-3 py-2 text-slate-900 placeholder-slate-400 focus:border-[#1e628c] focus:outline-none focus:ring-1 focus:ring-[#1e628c]"
-                                placeholder="you@example.com"
-                            />
-                        </div>
+                    <div className="space-y-4">
+                        {resetStage === "email" && (
+                            <form onSubmit={handleForgotPassword} className="space-y-4">
+                                <div>
+                                    <label htmlFor="reset-email" className="block text-sm font-medium text-slate-700">
+                                        Email
+                                    </label>
+                                    <input
+                                        id="reset-email"
+                                        type="email"
+                                        value={email}
+                                        onChange={(e) => setEmail(e.target.value)}
+                                        className="mt-1 block w-full rounded-md border border-slate-300 px-3 py-2 text-slate-900 placeholder-slate-400 focus:border-[#1e628c] focus:outline-none focus:ring-1 focus:ring-[#1e628c]"
+                                        placeholder="you@example.com"
+                                    />
+                                </div>
 
-                        <div className="flex gap-3">
-                            <button
-                                type="submit"
-                                disabled={isLoading || resetSuccess}
-                                className={cn(
-                                    "flex-1 rounded-md bg-[#1e628c] py-2 text-sm font-medium text-white transition-colors",
-                                    (isLoading || resetSuccess) ? "opacity-70 cursor-not-allowed" : "hover:bg-[#164d6e]"
-                                )}
-                            >
-                                {isLoading ? "Sending..." : resetSuccess ? "Sent!" : "Reset Password"}
-                            </button>
-                            
-                            <button
-                                type="button"
-                                onClick={() => {
-                                    setForgotPasswordOpen(false);
-                                    setErrorMessage("");
-                                }}
-                                className="flex-1 rounded-md border border-slate-300 bg-white py-2 text-sm font-medium text-slate-700 transition-colors hover:bg-slate-50"
-                            >
-                                Back to Login
-                            </button>
-                        </div>
-                    </form>
+                                <div className="flex gap-3">
+                                    <button
+                                        type="submit"
+                                        disabled={isLoading}
+                                        className={cn(
+                                            "flex-1 rounded-md bg-[#1e628c] py-2 text-sm font-medium text-white transition-colors",
+                                            isLoading ? "opacity-70 cursor-not-allowed" : "hover:bg-[#164d6e]"
+                                        )}
+                                    >
+                                        {isLoading ? "Checking..." : "Continue"}
+                                    </button>
+                                    
+                                    <button
+                                        type="button"
+                                        onClick={() => {
+                                            setForgotPasswordOpen(false);
+                                            setErrorMessage("");
+                                        }}
+                                        className="flex-1 rounded-md border border-slate-300 bg-white py-2 text-sm font-medium text-slate-700 transition-colors hover:bg-slate-50"
+                                    >
+                                        Back to Login
+                                    </button>
+                                </div>
+                            </form>
+                        )}
+
+                        {resetStage === "verify" && (
+                            <div className="space-y-4">
+                                <div className="rounded-md bg-blue-50 p-4">
+                                    <div className="flex">
+                                        <div className="flex-shrink-0">
+                                            <CheckCircle className="h-5 w-5 text-blue-500" />
+                                        </div>
+                                        <div className="ml-3">
+                                            <p className="text-sm text-blue-700">
+                                                Account found. You can now reset your password.
+                                            </p>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div className="text-sm text-slate-600">
+                                    <p>Email: <span className="font-medium">{email}</span></p>
+                                </div>
+                                
+                                <div className="flex gap-3">
+                                    <button
+                                        type="button"
+                                        onClick={() => setResetStage("reset")}
+                                        className="flex-1 rounded-md bg-[#1e628c] py-2 text-sm font-medium text-white transition-colors hover:bg-[#164d6e]"
+                                    >
+                                        Reset Password
+                                    </button>
+                                    
+                                    <button
+                                        type="button"
+                                        onClick={handleBackToEmail}
+                                        className="flex items-center justify-center gap-1 rounded-md border border-slate-300 bg-white px-4 py-2 text-sm font-medium text-slate-700 transition-colors hover:bg-slate-50"
+                                    >
+                                        <ArrowLeft className="h-4 w-4" />
+                                        Back
+                                    </button>
+                                </div>
+                            </div>
+                        )}
+
+                        {resetStage === "reset" && (
+                            <form onSubmit={handlePasswordReset} className="space-y-4">
+                                <div>
+                                    <label htmlFor="new-password" className="block text-sm font-medium text-slate-700">
+                                        New Password
+                                    </label>
+                                    <div className="relative mt-1">
+                                        <input
+                                            id="new-password"
+                                            type={showNewPassword ? "text" : "password"}
+                                            value={newPassword}
+                                            onChange={(e) => setNewPassword(e.target.value)}
+                                            className="block w-full rounded-md border border-slate-300 px-3 py-2 text-slate-900 placeholder-slate-400 focus:border-[#1e628c] focus:outline-none focus:ring-1 focus:ring-[#1e628c]"
+                                            placeholder="••••••••"
+                                            minLength={6}
+                                        />
+                                        <button
+                                            type="button"
+                                            className="absolute inset-y-0 right-0 flex items-center px-3 text-slate-500"
+                                            onClick={() => setShowNewPassword(!showNewPassword)}
+                                        >
+                                            {showNewPassword ? (
+                                                <EyeOff className="h-4 w-4" />
+                                            ) : (
+                                                <Eye className="h-4 w-4" />
+                                            )}
+                                        </button>
+                                    </div>
+                                    <p className="mt-1 text-xs text-slate-500">
+                                        Password must be at least 6 characters long
+                                    </p>
+                                </div>
+
+                                <div>
+                                    <label htmlFor="confirm-password" className="block text-sm font-medium text-slate-700">
+                                        Confirm New Password
+                                    </label>
+                                    <div className="relative mt-1">
+                                        <input
+                                            id="confirm-password"
+                                            type={showNewPassword ? "text" : "password"}
+                                            value={confirmNewPassword}
+                                            onChange={(e) => setConfirmNewPassword(e.target.value)}
+                                            className="block w-full rounded-md border border-slate-300 px-3 py-2 text-slate-900 placeholder-slate-400 focus:border-[#1e628c] focus:outline-none focus:ring-1 focus:ring-[#1e628c]"
+                                            placeholder="••••••••"
+                                        />
+                                    </div>
+                                </div>
+
+                                <div className="flex gap-3">
+                                    <button
+                                        type="submit"
+                                        disabled={isLoading}
+                                        className={cn(
+                                            "flex-1 rounded-md bg-[#1e628c] py-2 text-sm font-medium text-white transition-colors",
+                                            isLoading ? "opacity-70 cursor-not-allowed" : "hover:bg-[#164d6e]"
+                                        )}
+                                    >
+                                        {isLoading ? "Resetting..." : "Reset Password"}
+                                    </button>
+                                    
+                                    <button
+                                        type="button"
+                                        onClick={() => setResetStage("verify")}
+                                        className="flex items-center justify-center gap-1 rounded-md border border-slate-300 bg-white px-4 py-2 text-sm font-medium text-slate-700 transition-colors hover:bg-slate-50"
+                                    >
+                                        <ArrowLeft className="h-4 w-4" />
+                                        Back
+                                    </button>
+                                </div>
+                            </form>
+                        )}
+
+                        {resetStage === "success" && (
+                            <div className="space-y-4">
+                                <div className="rounded-md bg-green-50 p-4">
+                                    <div className="flex">
+                                        <div className="flex-shrink-0">
+                                            <CheckCircle className="h-5 w-5 text-green-500" />
+                                        </div>
+                                        <div className="ml-3">
+                                            <p className="text-sm text-green-700">
+                                                Your password has been reset successfully!
+                                            </p>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div className="text-center text-sm text-slate-600">
+                                    <p>You will be redirected to the login page shortly...</p>
+                                </div>
+                                
+                                <button
+                                    type="button"
+                                    onClick={() => {
+                                        setForgotPasswordOpen(false);
+                                        setResetStage("email");
+                                        setResetSuccess(false);
+                                    }}
+                                    className="w-full rounded-md border border-slate-300 bg-white py-2 text-sm font-medium text-slate-700 transition-colors hover:bg-slate-50"
+                                >
+                                    Return to Login
+                                </button>
+                            </div>
+                        )}
+                    </div>
                 )}
 
                 <div className="mt-6 text-center text-sm text-slate-600">
