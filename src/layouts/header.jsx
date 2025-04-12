@@ -1,8 +1,10 @@
-import { useState, useRef } from "react";
-import { ChevronsLeft, LogOut, User, Settings } from "lucide-react";
+import { useState, useRef, useEffect } from "react";
+import { ChevronsLeft, LogOut, User, Settings, Menu } from "lucide-react";
 import { useAuth } from "@/contexts/auth-context";
 import { useNavigate, Link } from "react-router-dom";
 import { useClickOutside } from "@/hooks/use-click-outside";
+import { useMediaQuery } from "@uidotdev/usehooks";
+import { cn } from "@/utils/cn";
 import profileImg from "@/assets/user.png";
 import PropTypes from "prop-types";
 
@@ -11,6 +13,7 @@ export const Header = ({ collapsed, setCollapsed }) => {
     const navigate = useNavigate();
     const [profileMenuOpen, setProfileMenuOpen] = useState(false);
     const profileMenuRef = useRef(null);
+    const isMobile = useMediaQuery("(max-width: 640px)");
     
     useClickOutside([profileMenuRef], () => {
         setProfileMenuOpen(false);
@@ -21,26 +24,37 @@ export const Header = ({ collapsed, setCollapsed }) => {
         navigate("/");
     };
 
+    // Close menu when navigating
+    useEffect(() => {
+        return () => setProfileMenuOpen(false);
+    }, [navigate]);
+
     return (
-        <header className="relative z-10 flex h-[60px] items-center justify-between bg-white px-4 shadow-md">
-            <div className="flex items-center gap-x-3">
+        <header className="relative z-10 flex h-[60px] items-center justify-between bg-white px-3 sm:px-4 shadow-md">
+            <div className="flex items-center gap-x-2 sm:gap-x-3">
                 <button
-                    className="btn-ghost size-10"
+                    className="btn-ghost size-9 sm:size-10 flex items-center justify-center"
                     onClick={() => setCollapsed(!collapsed)}
+                    aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}
                 >
-                    <ChevronsLeft className={collapsed ? "rotate-180" : ""} />
+                    {isMobile ? (
+                        <Menu className="h-5 w-5" />
+                    ) : (
+                        <ChevronsLeft className={collapsed ? "rotate-180 transition-transform duration-300" : "transition-transform duration-300"} />
+                    )}
                 </button>
             </div>
-            <div className="flex items-center gap-x-3">
+            <div className="flex items-center gap-x-2 sm:gap-x-3">
                 {isAuthenticated ? (
                     <div className="relative">
                         <button 
-                            className="size-10 overflow-hidden rounded-full border-2 border-slate-200"
+                            className="size-8 sm:size-10 overflow-hidden rounded-full border-2 border-slate-200"
                             onClick={() => setProfileMenuOpen(!profileMenuOpen)}
+                            aria-label="Open profile menu"
                         >
                             <img
                                 src={profileImg}
-                                alt="profile"
+                                alt="Profile"
                                 className="size-full object-cover"
                             />
                         </button>
@@ -48,11 +62,14 @@ export const Header = ({ collapsed, setCollapsed }) => {
                         {profileMenuOpen && (
                             <div 
                                 ref={profileMenuRef}
-                                className="absolute right-0 mt-2 w-56 rounded-md bg-white py-1 shadow-lg ring-1 ring-black ring-opacity-5"
+                                className={cn(
+                                    "absolute right-0 mt-2 w-48 sm:w-56 rounded-md bg-white py-1 shadow-lg ring-1 ring-black ring-opacity-5",
+                                    isMobile && "-right-2"
+                                )}
                             >
                                 <div className="border-b border-slate-100 px-4 py-2">
                                     <p className="text-sm font-medium text-slate-900">{user?.name || "User"}</p>
-                                    {user?.email && <p className="text-xs text-slate-500">{user.email}</p>}
+                                    {user?.email && <p className="text-xs text-slate-500 truncate">{user.email}</p>}
                                 </div>
                                 <div className="py-1">
                                     <button 
@@ -92,13 +109,13 @@ export const Header = ({ collapsed, setCollapsed }) => {
                     <div className="flex items-center gap-x-2">
                         <Link 
                             to="/signin" 
-                            className="px-3 py-2 text-sm font-medium text-slate-700 hover:text-[#1e628c]"
+                            className="px-2 sm:px-3 py-1 sm:py-2 text-xs sm:text-sm font-medium text-slate-700 hover:text-[#1e628c]"
                         >
                             Sign in
                         </Link>
                         <Link 
                             to="/signup" 
-                            className="rounded-md bg-[#1e628c] px-3 py-2 text-sm font-medium text-white hover:bg-[#174e70]"
+                            className="rounded-md bg-[#1e628c] px-2 sm:px-3 py-1 sm:py-2 text-xs sm:text-sm font-medium text-white hover:bg-[#174e70]"
                         >
                             Sign up
                         </Link>
