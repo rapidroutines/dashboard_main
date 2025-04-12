@@ -2,6 +2,7 @@ import { forwardRef } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { navbarLinks } from "@/constants";
 import logoLight from "@/assets/main_logo.png";
+import faviconLight from "@/assets/favicon.png";
 import { cn } from "@/utils/cn";
 import PropTypes from "prop-types";
 
@@ -20,8 +21,9 @@ export const Sidebar = forwardRef(({ collapsed }, ref) => {
             <div className="flex gap-x-3 p-3 cursor-pointer">
                 <a href="https://rapidroutines.org/">
                     <img
-                        src={logoLight}
+                        src={collapsed ? faviconLight : logoLight}
                         alt="RapidRoutines"
+                        className={collapsed ? "h-8 w-8" : ""}
                     />
                 </a>
                 {!collapsed && <p className="text-lg font-medium text-slate-900"></p>}
@@ -32,16 +34,17 @@ export const Sidebar = forwardRef(({ collapsed }, ref) => {
                         key={navbarLink.title}
                         className={cn("sidebar-group", collapsed && "md:items-center")}
                     >
-                        <p className={cn("sidebar-group-title", collapsed && "md:w-[45px]")}>{navbarLink.title}</p>
+                        {!collapsed && <p className="sidebar-group-title">{navbarLink.title}</p>}
                         {navbarLink.links.map((link) => (
                             <Link
                                 key={link.label}
                                 to={link.path}
                                 className={cn(
                                     "sidebar-item", 
-                                    collapsed && "md:w-[45px]",
+                                    collapsed && "md:w-[45px] md:justify-center",
                                     location.pathname === link.path && "active"
                                 )}
+                                title={collapsed ? link.label : ""}
                             >
                                 <link.icon
                                     size={22}

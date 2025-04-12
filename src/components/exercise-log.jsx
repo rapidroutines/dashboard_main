@@ -6,11 +6,20 @@ export const ExerciseLog = ({ maxItems = 5 }) => {
     const { getExercises, isLoading } = useExercises();
     const [expandedView, setExpandedView] = useState(false);
     const [exercises, setExercises] = useState([]);
+    const [groupedExercises, setGroupedExercises] = useState([]);
     const [refreshKey, setRefreshKey] = useState(0);
     
     // Get exercises and update when new ones are added
     useEffect(() => {
-        setExercises(getExercises(expandedView ? undefined : maxItems));
+        const allExercises = getExercises();
+        setExercises(allExercises);
+        
+        // Group exercises by type and date (same day)
+        const grouped = groupExercisesByTypeAndDate(allExercises);
+        
+        // Limit the number of groups if not in expanded view
+        const limitedGroups = expandedView ? grouped : grouped.slice(0, maxItems);
+        setGroupedExercises(limitedGroups);
         
         // Set up an interval to refresh the exercise list
         const refreshInterval = setInterval(() => {
@@ -19,6 +28,48 @@ export const ExerciseLog = ({ maxItems = 5 }) => {
         
         return () => clearInterval(refreshInterval);
     }, [getExercises, expandedView, maxItems, refreshKey]);
+    
+    // Group exercises by type and date (same day)
+    const groupExercisesByTypeAndDate = (exerciseList) => {
+        if (!exerciseList || exerciseList.length === 0) return [];
+        
+        // Create a map to store grouped exercises
+        const groups = new Map();
+        
+        // Go through each exercise
+        exerciseList.forEach(exercise => {
+            const date = new Date(exercise.timestamp);
+            const dateKey = date.toDateString(); // Group by day
+            const typeKey = exercise.exerciseType;
+            const groupKey = `${dateKey}_${typeKey}`;
+            
+            if (!groups.has(groupKey)) {
+                groups.set(groupKey, {
+                    id: groupKey,
+                    exerciseType: typeKey,
+                    count: 0,
+                    totalReps: 0,
+                    timestamp: exercise.timestamp,
+                    exercises: []
+                });
+            }
+            
+            const group = groups.get(groupKey);
+            group.count += 1;
+            group.totalReps += exercise.count;
+            group.exercises.push(exercise);
+            
+            // Always use the most recent timestamp
+            if (new Date(exercise.timestamp) > new Date(group.timestamp)) {
+                group.timestamp = exercise.timestamp;
+            }
+        });
+        
+        // Convert map to array and sort by timestamp (newest first)
+        return Array.from(groups.values()).sort((a, b) => 
+            new Date(b.timestamp) - new Date(a.timestamp)
+        );
+    };
     
     // Format date nicely
     const formatDate = (isoDate) => {
@@ -65,7 +116,15 @@ export const ExerciseLog = ({ maxItems = 5 }) => {
     
     // Manual refresh function
     const handleRefresh = () => {
-        setExercises(getExercises(expandedView ? undefined : maxItems));
+        const allExercises = getExercises();
+        setExercises(allExercises);
+        
+        // Group exercises by type and date
+        const grouped = groupExercisesByTypeAndDate(allExercises);
+        
+        // Limit the number of groups if not in expanded view
+        const limitedGroups = expandedView ? grouped : grouped.slice(0, maxItems);
+        setGroupedExercises(limitedGroups);
     };
     
     if (isLoading) {
@@ -121,19 +180,20 @@ export const ExerciseLog = ({ maxItems = 5 }) => {
             </div>
             
             <div className="space-y-4">
-                {exercises.map((exercise) => (
-                    <div key={exercise.id} className="flex items-center gap-3 border-b border-slate-100 pb-3 last:border-b-0">
-                        <div className={`rounded-full p-2 ${getExerciseColor(exercise.exerciseType)}`}>
+                {groupedExercises.map((group) => (
+                    <div key={group.id} className="flex items-center gap-3 border-b border-slate-100 pb-3 last:border-b-0">
+                        <div className={`rounded-full p-2 ${getExerciseColor(group.exerciseType)}`}>
                             <Activity className="h-5 w-5" />
                         </div>
                         <div className="flex-1">
                             <div className="flex flex-wrap items-baseline justify-between gap-2">
                                 <p className="font-medium">
-                                    {exercise.count} {exercise.count === 1 ? 'rep' : 'reps'} of {formatExerciseType(exercise.exerciseType)}
+                                    x{group.totalReps} {formatExerciseType(group.exerciseType)}
+                                    {group.count > 1 && <span className="ml-1 text-xs text-slate-500">({group.count} sessions)</span>}
                                 </p>
                                 <div className="flex items-center gap-1 text-xs text-slate-500">
                                     <Calendar className="h-3 w-3" />
-                                    <span>{formatDate(exercise.timestamp)}</span>
+                                    <span>{formatDate(group.timestamp)}</span>
                                 </div>
                             </div>
                         </div>
@@ -141,12 +201,12 @@ export const ExerciseLog = ({ maxItems = 5 }) => {
                 ))}
             </div>
             
-            {exercises.length > 0 && !expandedView && exercises.length >= maxItems && (
+            {exercises.length > 0 && !expandedView && groupedExercises.length < (exercises.length / 2) && (
                 <button
                     onClick={() => setExpandedView(true)}
                     className="mt-4 w-full rounded-lg border border-slate-200 py-2 text-center text-sm font-medium text-slate-600 hover:bg-slate-50"
                 >
-                    Show All ({getExercises().length}) Exercises
+                    Show All ({Math.ceil(exercises.length / 2)}) Exercise Sessions
                 </button>
             )}
         </div>

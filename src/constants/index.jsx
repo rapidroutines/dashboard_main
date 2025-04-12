@@ -5,7 +5,6 @@ import {
   Home, 
   NotepadText, 
   TreePine, 
-  MessageSquare 
 } 
   from "lucide-react";
 
@@ -24,7 +23,7 @@ export const navbarLinks = [
     title: "Hot Features",
     links: [
       {
-        label: "Chatbot",
+        label: "ChatBot",
         icon: ChartColumn,
         path: "/chatbot",
       },

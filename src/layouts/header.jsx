@@ -55,20 +55,26 @@ export const Header = ({ collapsed, setCollapsed }) => {
                                     {user?.email && <p className="text-xs text-slate-500">{user.email}</p>}
                                 </div>
                                 <div className="py-1">
-                                    <a 
-                                        href="#" 
-                                        className="flex items-center px-4 py-2 text-sm text-slate-700 hover:bg-slate-100"
+                                    <button 
+                                        onClick={() => {
+                                            setProfileMenuOpen(false);
+                                            navigate("/profile");
+                                        }}
+                                        className="flex w-full items-center px-4 py-2 text-sm text-slate-700 hover:bg-slate-100"
                                     >
                                         <User className="mr-2 h-4 w-4" />
                                         Profile
-                                    </a>
-                                    <a 
-                                        href="#" 
-                                        className="flex items-center px-4 py-2 text-sm text-slate-700 hover:bg-slate-100"
+                                    </button>
+                                    <button 
+                                        onClick={() => {
+                                            setProfileMenuOpen(false);
+                                            navigate("/profile?tab=settings");
+                                        }}
+                                        className="flex w-full items-center px-4 py-2 text-sm text-slate-700 hover:bg-slate-100"
                                     >
                                         <Settings className="mr-2 h-4 w-4" />
                                         Settings
-                                    </a>
+                                    </button>
                                 </div>
                                 <div className="border-t border-slate-100 py-1">
                                     <button 
