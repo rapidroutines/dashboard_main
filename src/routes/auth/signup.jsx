@@ -13,6 +13,7 @@ const SignUpPage = () => {
     const [showPassword, setShowPassword] = useState(false);
     const [errorMessage, setErrorMessage] = useState("");
     const [isLoading, setIsLoading] = useState(false);
+    const [agreedToTerms, setAgreedToTerms] = useState(false);
     
     const navigate = useNavigate();
     const { login } = useAuth();
@@ -39,6 +40,11 @@ const SignUpPage = () => {
         
         if (!email.includes('@')) {
             setErrorMessage("Please enter a valid email address");
+            return;
+        }
+        
+        if (!agreedToTerms) {
+            setErrorMessage("You must agree to the Terms of Service and Privacy Policy");
             return;
         }
         
@@ -163,11 +169,29 @@ const SignUpPage = () => {
                         <input
                             id="terms"
                             type="checkbox"
-                            required
+                            checked={agreedToTerms}
+                            onChange={(e) => setAgreedToTerms(e.target.checked)}
                             className="h-4 w-4 rounded border-slate-300 text-[#1e628c] focus:ring-[#1e628c]"
                         />
                         <label htmlFor="terms" className="ml-2 block text-sm text-slate-700">
-                            I agree to the <a href="#" className="text-[#1e628c] hover:underline">Terms of Service</a> and <a href="#" className="text-[#1e628c] hover:underline">Privacy Policy</a>
+                            I agree to the{" "}
+                            <a 
+                                href="https://docs.google.com/document/d/18YQf-p_lAWLWkv4xXltvtJMY8fW0MRn5ur2BUNjhdHE/edit?tab=t.lx86jybafkpq" 
+                                target="_blank" 
+                                rel="noopener noreferrer"
+                                className="text-[#1e628c] hover:underline"
+                            >
+                                Terms of Service
+                            </a>{" "}
+                            and{" "}
+                            <a 
+                                href="https://docs.google.com/document/d/18YQf-p_lAWLWkv4xXltvtJMY8fW0MRn5ur2BUNjhdHE/edit?tab=t.0" 
+                                target="_blank" 
+                                rel="noopener noreferrer"
+                                className="text-[#1e628c] hover:underline"
+                            >
+                                Privacy Policy
+                            </a>
                         </label>
                     </div>
 

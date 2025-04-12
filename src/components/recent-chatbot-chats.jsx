@@ -132,10 +132,10 @@ export const RecentChatbotChats = ({ maxItems = 2 }) => {
                             </div>
                         )}
                         
-                        {/* Link to chatbot */}
+                        {/* Link to chatbot - Update with conversationId */}
                         <div className="mt-3 flex justify-end">
                             <Link 
-                                to="/chatbot" 
+                                to={`/chatbot?conversationId=${chat.id}`}
                                 className="text-xs font-medium text-[#1e628c] hover:underline"
                             >
                                 Continue conversation →

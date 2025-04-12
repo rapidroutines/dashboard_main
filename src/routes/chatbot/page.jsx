@@ -1,17 +1,23 @@
 import { useState, useEffect, useRef } from "react";
+import { useSearchParams } from "react-router-dom";
 import { Footer } from "@/layouts/footer";
 import { MessageSquare, AlertCircle } from "lucide-react";
 import { useAuth } from "@/contexts/auth-context";
 import { useChatbot } from "@/contexts/chatbot-context";
-import { sendMessageToIframe, createIframeMessageHandler } from "@/utils/iframe-message-utils";
+import { sendMessageToIframe, createIframeMessageHandler, loadChatHistory } from "@/utils/iframe-message-utils";
 
 const ChatbotPage = () => {
+    const [searchParams] = useSearchParams();
     const [isLoading, setIsLoading] = useState(true);
     const [chatEnded, setChatEnded] = useState(false);
     const [notification, setNotification] = useState(null);
+    const [iframeLoaded, setIframeLoaded] = useState(false);
     const iframeRef = useRef(null);
     const { isAuthenticated } = useAuth();
-    const { addChatSession } = useChatbot();
+    const { addChatSession, getChatHistory } = useChatbot();
+    
+    // Get conversation ID from URL if it exists
+    const conversationId = searchParams.get('conversationId');
     
     // Keep track of current conversation
     const currentConversation = useRef([]);
@@ -44,6 +50,38 @@ const ChatbotPage = () => {
             setChatEnded(true);
         }
     };
+    
+    // Load previous conversation if ID is provided
+    useEffect(() => {
+        const loadPreviousConversation = async () => {
+            if (!conversationId || !iframeLoaded || !iframeRef.current) return;
+            
+            // Find the conversation in history
+            const chatHistory = getChatHistory();
+            const conversation = chatHistory.find(chat => chat.id.toString() === conversationId);
+            
+            if (conversation && conversation.messages && conversation.messages.length > 0) {
+                console.log("Loading previous conversation:", conversation);
+                
+                // Set the current conversation for tracking
+                currentConversation.current = [...conversation.messages];
+                
+                // Give the iframe a moment to initialize
+                setTimeout(async () => {
+                    // Load the conversation messages into the iframe
+                    const success = await loadChatHistory(iframeRef.current, conversation.messages);
+                    
+                    if (success) {
+                        console.log("Successfully loaded conversation history");
+                    } else {
+                        console.error("Failed to load conversation history");
+                    }
+                }, 1500);
+            }
+        };
+        
+        loadPreviousConversation();
+    }, [conversationId, getChatHistory, iframeLoaded]);
     
     // Check for chat end when component unmounts
     useEffect(() => {
@@ -123,8 +161,13 @@ const ChatbotPage = () => {
                         className="h-full w-full border-0"
                         onLoad={() => {
                             setIsLoading(false);
+                            setIframeLoaded(true);
                             setChatEnded(false); // Reset chat ended flag on new load
-                            currentConversation.current = []; // Reset conversation
+                            
+                            // Don't reset conversation if we're loading a previous one
+                            if (!conversationId) {
+                                currentConversation.current = []; // Reset conversation
+                            }
                         }}
                         title="Chatbot Interface"
                         style={{ borderRadius: '0.75rem' }}

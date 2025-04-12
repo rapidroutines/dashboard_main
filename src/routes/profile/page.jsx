@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useAuth } from "@/contexts/auth-context";
+import { useChatbot } from "@/contexts/chatbot-context";
 import { Footer } from "@/layouts/footer";
 import { User, Mail, Clock, LogOut, Save, CheckCircle } from "lucide-react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
@@ -7,6 +8,7 @@ import { cn } from "@/utils/cn";
 
 const ProfilePage = () => {
     const { user, logout, isAuthenticated, login } = useAuth();
+    const { getChatHistory } = useChatbot();
     const navigate = useNavigate();
     const location = useLocation();
     const [activeTab, setActiveTab] = useState("profile");
@@ -14,6 +16,9 @@ const ProfilePage = () => {
     const [email, setEmail] = useState("");
     const [successMessage, setSuccessMessage] = useState("");
     const [isEditing, setIsEditing] = useState(false);
+    
+    // Get chat history count for display
+    const chatHistoryCount = getChatHistory().length;
     
     // Check for tab parameter in URL
     useEffect(() => {
@@ -58,6 +63,35 @@ const ProfilePage = () => {
         setTimeout(() => {
             setSuccessMessage("");
         }, 3000);
+    };
+    
+    // Function to clear chatbot history
+    const clearChatbotHistory = () => {
+        if (confirm("Are you sure you want to clear all your chatbot history? This cannot be undone.")) {
+            try {
+                if (user && user.email) {
+                    // Remove chatbot history from localStorage
+                    localStorage.removeItem(`chatbot_history_${user.email}`);
+                    
+                    // Show success message
+                    setSuccessMessage("Chatbot history cleared successfully!");
+                    
+                    // Clear message after timeout
+                    setTimeout(() => {
+                        setSuccessMessage("");
+                        // Reload the page to refresh components
+                        window.location.reload();
+                    }, 2000);
+                }
+            } catch (error) {
+                console.error("Error clearing chatbot history:", error);
+                setSuccessMessage("Error clearing chatbot history. Please try again.");
+                
+                setTimeout(() => {
+                    setSuccessMessage("");
+                }, 3000);
+            }
+        }
     };
     
     if (!isAuthenticated) {
@@ -282,6 +316,29 @@ const ProfilePage = () => {
                                     </div>
                                 </div>
                                 
+                                {/* New Chatbot History Section */}
+                                <div className="rounded-lg border border-slate-200 p-5">
+                                    <h3 className="mb-1 font-medium text-slate-900">Chatbot History</h3>
+                                    <p className="mb-4 text-sm text-slate-500">
+                                        Manage your saved chat conversations ({chatHistoryCount} {chatHistoryCount === 1 ? 'conversation' : 'conversations'})
+                                    </p>
+                                    <div className="flex gap-2">
+                                        <Link
+                                            to="/chatbot"
+                                            className="rounded-lg bg-[#1e628c] px-3 py-2 text-sm font-medium text-white hover:bg-[#17516f]"
+                                        >
+                                            Go to Chatbot
+                                        </Link>
+                                        <button 
+                                            className="rounded-lg border border-slate-300 px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50"
+                                            onClick={clearChatbotHistory}
+                                            disabled={chatHistoryCount === 0}
+                                        >
+                                            Clear All Chat History
+                                        </button>
+                                    </div>
+                                </div>
+                                
                                 <div className="rounded-lg border border-slate-200 p-5">
                                     <h3 className="mb-1 font-medium text-slate-900">Exercise History</h3>
                                     <p className="mb-4 text-sm text-slate-500">
@@ -324,6 +381,7 @@ const ProfilePage = () => {
                                                 // Clear all user data
                                                 localStorage.removeItem(`savedExercises_${user.email}`);
                                                 localStorage.removeItem(`exercises_${user.email}`);
+                                                localStorage.removeItem(`chatbot_history_${user.email}`);
                                                 localStorage.removeItem("user");
                                                 
                                                 setSuccessMessage("Account deleted successfully. Redirecting...");
