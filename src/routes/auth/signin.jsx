@@ -43,52 +43,87 @@ const SignInPage = () => {
         
         setIsLoading(true);
         
-        // Simulate authentication - in a real app, this would be an API call
-        setTimeout(() => {
-            try {
-                // For demo purposes, accept any valid-looking email and password
-                if (email.includes("@") && password.length >= 6) {
-                    // Handle Remember Me functionality
-                    if (rememberMe) {
-                        localStorage.setItem("savedEmail", email);
-                    } else {
-                        localStorage.removeItem("savedEmail");
+        try {
+            // First, check if user exists in localStorage
+            let userFound = false;
+            let storedUser = null;
+            
+            const storedUserStr = localStorage.getItem("user");
+            if (storedUserStr) {
+                try {
+                    storedUser = JSON.parse(storedUserStr);
+                    if (storedUser && storedUser.email === email) {
+                        userFound = true;
                     }
-                    
-                    // Create user object with necessary information
-                    const userData = { 
-                        email,
-                        name: email.split('@')[0], // Using part of email as name for demo
-                        password: password, // In a real app, this would be hashed
-                        lastLogin: new Date().toISOString()
-                    };
-                    
-                    // Save to localStorage for our password reset feature
-                    localStorage.setItem("user", JSON.stringify(userData));
-                    
-                    // Call login function from auth context
-                    const success = login(userData);
-                    
-                    if (success) {
-                        console.log("Login successful, redirecting to dashboard");
-                        navigate("/");
-                    } else {
-                        setErrorMessage("Failed to login. Please try again.");
-                    }
-                } else {
-                    setErrorMessage("Invalid credentials. Please try again.");
+                } catch (error) {
+                    console.error("Error parsing stored user:", error);
                 }
-            } catch (error) {
-                console.error("Login error:", error);
-                setErrorMessage("An error occurred. Please try again.");
-            } finally {
-                setIsLoading(false);
             }
-        }, 1000);
+            
+            // If user found, check password
+            if (userFound && storedUser.password === password) {
+                // Handle Remember Me functionality
+                if (rememberMe) {
+                    localStorage.setItem("savedEmail", email);
+                } else {
+                    localStorage.removeItem("savedEmail");
+                }
+                
+                // Call login function from auth context
+                const success = login(storedUser);
+                
+                if (success) {
+                    console.log("Login successful, redirecting to dashboard");
+                    navigate("/");
+                    return;
+                }
+            }
+            
+            // If we get here, either user not found or password incorrect
+            // For demo purposes, accept new users with valid-looking credentials
+            if (!userFound && email.includes("@") && password.length >= 6) {
+                // Handle Remember Me functionality
+                if (rememberMe) {
+                    localStorage.setItem("savedEmail", email);
+                } else {
+                    localStorage.removeItem("savedEmail");
+                }
+                
+                // Create new user object with necessary information
+                const newUserData = { 
+                    email,
+                    name: email.split('@')[0], // Using part of email as name for demo
+                    password: password,
+                    lastLogin: new Date().toISOString()
+                };
+                
+                // Save to localStorage for our password reset feature
+                localStorage.setItem("user", JSON.stringify(newUserData));
+                
+                // Call login function from auth context
+                const success = login(newUserData);
+                
+                if (success) {
+                    console.log("New user created and logged in, redirecting to dashboard");
+                    navigate("/");
+                    return;
+                }
+            }
+            
+            // If we reach here, something went wrong
+            setErrorMessage("Invalid email or password. Please try again.");
+            
+        } catch (error) {
+            console.error("Login error:", error);
+            setErrorMessage("An error occurred. Please try again.");
+        } finally {
+            setIsLoading(false);
+        }
     };
 
     const handleForgotPassword = (e) => {
         e.preventDefault();
+        setErrorMessage("");
         
         if (!resetEmail || !resetEmail.includes('@')) {
             setErrorMessage("Please enter a valid email address");
@@ -97,46 +132,45 @@ const SignInPage = () => {
         
         setIsLoading(true);
         
-        // Deliberately add a small delay to simulate processing
-        setTimeout(() => {
-            // Check if this email exists in localStorage
-            let userExists = false;
-            try {
-                const storedUserStr = localStorage.getItem("user");
-                console.log("Retrieved from localStorage:", storedUserStr);
-                
-                if (storedUserStr) {
-                    const storedUser = JSON.parse(storedUserStr);
-                    console.log("Checking email:", resetEmail, "against stored email:", storedUser.email);
-                    
-                    if (storedUser && storedUser.email === resetEmail) {
-                        userExists = true;
-                        console.log("Email match found in localStorage");
-                    } else {
-                        console.log("Email doesn't match stored user");
-                    }
-                } else {
-                    console.log("No user found in localStorage");
-                }
-            } catch (error) {
-                console.error("Error checking localStorage:", error);
-            }
+        // Check if this email exists in localStorage
+        try {
+            const storedUserStr = localStorage.getItem("user");
             
-            setIsLoading(false);
-            
-            if (!userExists) {
+            if (!storedUserStr) {
+                setIsLoading(false);
                 setErrorMessage("No account found with this email address on this device");
                 return;
             }
             
-            // If the user exists in localStorage, show password reset form
-            setShowPasswordReset(true);
-            setErrorMessage("");
-        }, 800);
+            try {
+                const storedUser = JSON.parse(storedUserStr);
+                
+                if (!storedUser || storedUser.email !== resetEmail) {
+                    setIsLoading(false);
+                    setErrorMessage("No account found with this email address on this device");
+                    return;
+                }
+                
+                // Email found, proceed to password reset form
+                console.log("Email found in localStorage, showing password reset form");
+                setShowPasswordReset(true);
+                setErrorMessage("");
+                
+            } catch (parseError) {
+                console.error("Error parsing stored user:", parseError);
+                setErrorMessage("An error occurred. Please try again.");
+            }
+        } catch (error) {
+            console.error("Error checking localStorage:", error);
+            setErrorMessage("An error occurred. Please try again.");
+        } finally {
+            setIsLoading(false);
+        }
     };
     
     const handleResetPassword = (e) => {
         e.preventDefault();
+        setErrorMessage("");
         
         if (!newPassword || newPassword.length < 6) {
             setErrorMessage("Password must be at least 6 characters");
@@ -150,53 +184,62 @@ const SignInPage = () => {
         
         setIsLoading(true);
         
-        // Deliberately add a small delay to simulate processing
-        setTimeout(() => {
-            // Update the password in localStorage
-            try {
-                const storedUserStr = localStorage.getItem("user");
-                if (storedUserStr) {
-                    const storedUser = JSON.parse(storedUserStr);
-                    if (storedUser && storedUser.email === resetEmail) {
-                        // Update the user object with the new password
-                        const updatedUser = {
-                            ...storedUser,
-                            password: newPassword, // In a real app, this would be hashed
-                            passwordUpdated: new Date().toISOString()
-                        };
-                        
-                        // Save back to localStorage
-                        localStorage.setItem("user", JSON.stringify(updatedUser));
-                        console.log("Password updated in localStorage:", updatedUser);
-                        
-                        // Show success message
-                        setIsLoading(false);
-                        setResetSuccess(true);
-                        setErrorMessage("");
-                        
-                        // Auto-close the forgot password form after 3 seconds
-                        setTimeout(() => {
-                            setForgotPasswordOpen(false);
-                            setResetSuccess(false);
-                            setResetEmail("");
-                            setNewPassword("");
-                            setConfirmNewPassword("");
-                            setShowPasswordReset(false);
-                        }, 3000);
-                    } else {
-                        setErrorMessage("Error updating password. Email mismatch.");
-                        setIsLoading(false);
-                    }
-                } else {
-                    setErrorMessage("No user found in local storage");
-                    setIsLoading(false);
-                }
-            } catch (error) {
-                console.error("Error updating password:", error);
-                setErrorMessage("An error occurred while updating the password");
+        try {
+            const storedUserStr = localStorage.getItem("user");
+            
+            if (!storedUserStr) {
+                setErrorMessage("No user account found");
                 setIsLoading(false);
+                return;
             }
-        }, 800);
+            
+            try {
+                const storedUser = JSON.parse(storedUserStr);
+                
+                if (!storedUser || storedUser.email !== resetEmail) {
+                    setErrorMessage("User account not found or email mismatch");
+                    setIsLoading(false);
+                    return;
+                }
+                
+                // Update the user object with the new password
+                const updatedUser = {
+                    ...storedUser,
+                    password: newPassword,
+                    passwordUpdated: new Date().toISOString()
+                };
+                
+                // Save back to localStorage
+                localStorage.setItem("user", JSON.stringify(updatedUser));
+                console.log("Password updated successfully in localStorage");
+                
+                // Show success message
+                setResetSuccess(true);
+                setErrorMessage("");
+                
+                // Auto-close the forgot password form after 3 seconds
+                setTimeout(() => {
+                    setForgotPasswordOpen(false);
+                    setResetSuccess(false);
+                    setResetEmail("");
+                    setNewPassword("");
+                    setConfirmNewPassword("");
+                    setShowPasswordReset(false);
+                    
+                    // Pre-fill the email field for login
+                    setEmail(resetEmail);
+                }, 3000);
+                
+            } catch (parseError) {
+                console.error("Error parsing stored user:", parseError);
+                setErrorMessage("An error occurred while updating password");
+            }
+        } catch (error) {
+            console.error("Error updating password:", error);
+            setErrorMessage("An error occurred while updating password");
+        } finally {
+            setIsLoading(false);
+        }
     };
 
     return (
@@ -296,6 +339,7 @@ const SignInPage = () => {
                                 onClick={() => {
                                     setForgotPasswordOpen(true);
                                     setResetEmail(email);
+                                    setErrorMessage("");
                                 }}
                                 className="text-sm font-medium text-[#1e628c] hover:underline"
                             >
