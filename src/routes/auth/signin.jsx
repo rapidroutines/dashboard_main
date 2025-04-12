@@ -19,6 +19,7 @@ const SignInPage = () => {
     const [confirmNewPassword, setConfirmNewPassword] = useState("");
     const [showNewPassword, setShowNewPassword] = useState(false);
     const [showPasswordReset, setShowPasswordReset] = useState(false);
+    const [resetToken, setResetToken] = useState("");
     
     const navigate = useNavigate();
     const { login } = useAuth();
@@ -29,6 +30,22 @@ const SignInPage = () => {
         if (savedEmail) {
             setEmail(savedEmail);
             setRememberMe(true);
+        }
+        
+        // Check for reset token in URL
+        const params = new URLSearchParams(window.location.search);
+        const token = params.get('token');
+        const tokenEmail = params.get('email');
+        
+        if (token && tokenEmail) {
+            // Auto-open password reset form with token
+            setResetToken(token);
+            setResetEmail(decodeURIComponent(tokenEmail));
+            setForgotPasswordOpen(true);
+            setShowPasswordReset(true);
+            
+            // Remove token from URL to prevent reuse
+            window.history.replaceState({}, document.title, window.location.pathname);
         }
     }, []);
 
@@ -47,17 +64,24 @@ const SignInPage = () => {
             // First, check if user exists in localStorage
             let userFound = false;
             let storedUser = null;
+            let allUsers = [];
             
-            const storedUserStr = localStorage.getItem("user");
-            if (storedUserStr) {
-                try {
-                    storedUser = JSON.parse(storedUserStr);
-                    if (storedUser && storedUser.email === email) {
+            try {
+                // Get all users from storage
+                const usersStr = localStorage.getItem("users");
+                if (usersStr) {
+                    allUsers = JSON.parse(usersStr);
+                    // Find user with matching email (case insensitive)
+                    storedUser = allUsers.find(user => 
+                        user.email.toLowerCase() === email.toLowerCase()
+                    );
+                    
+                    if (storedUser) {
                         userFound = true;
                     }
-                } catch (error) {
-                    console.error("Error parsing stored user:", error);
                 }
+            } catch (error) {
+                console.error("Error loading users:", error);
             }
             
             // If user found, check password
@@ -68,6 +92,19 @@ const SignInPage = () => {
                 } else {
                     localStorage.removeItem("savedEmail");
                 }
+                
+                // Update last login time
+                const updatedUsers = allUsers.map(user => {
+                    if (user.email.toLowerCase() === email.toLowerCase()) {
+                        return {
+                            ...user,
+                            lastLogin: new Date().toISOString()
+                        };
+                    }
+                    return user;
+                });
+                
+                localStorage.setItem("users", JSON.stringify(updatedUsers));
                 
                 // Call login function from auth context
                 const success = login(storedUser);
@@ -80,7 +117,7 @@ const SignInPage = () => {
             }
             
             // If we get here, either user not found or password incorrect
-            // For demo purposes, accept new users with valid-looking credentials
+            // For demo purposes, create new user if not found and credentials look valid
             if (!userFound && email.includes("@") && password.length >= 6) {
                 // Handle Remember Me functionality
                 if (rememberMe) {
@@ -91,13 +128,19 @@ const SignInPage = () => {
                 
                 // Create new user object with necessary information
                 const newUserData = { 
-                    email,
+                    id: Date.now().toString(),
+                    email: email,
                     name: email.split('@')[0], // Using part of email as name for demo
                     password: password,
+                    created: new Date().toISOString(),
                     lastLogin: new Date().toISOString()
                 };
                 
-                // Save to localStorage for our password reset feature
+                // Add to users array
+                allUsers.push(newUserData);
+                localStorage.setItem("users", JSON.stringify(allUsers));
+                
+                // Also store separately for backward compatibility
                 localStorage.setItem("user", JSON.stringify(newUserData));
                 
                 // Call login function from auth context
@@ -132,36 +175,81 @@ const SignInPage = () => {
         
         setIsLoading(true);
         
-        // Check if this email exists in localStorage
         try {
-            const storedUserStr = localStorage.getItem("user");
+            // Get all users
+            let allUsers = [];
+            let userFound = false;
             
-            if (!storedUserStr) {
+            try {
+                const usersStr = localStorage.getItem("users");
+                if (usersStr) {
+                    allUsers = JSON.parse(usersStr);
+                    // Find user with matching email (case insensitive)
+                    userFound = allUsers.some(user => 
+                        user.email.toLowerCase() === resetEmail.toLowerCase()
+                    );
+                }
+                
+                // Also check legacy storage format
+                if (!userFound) {
+                    const storedUserStr = localStorage.getItem("user");
+                    if (storedUserStr) {
+                        const storedUser = JSON.parse(storedUserStr);
+                        if (storedUser && storedUser.email.toLowerCase() === resetEmail.toLowerCase()) {
+                            userFound = true;
+                            
+                            // Migrate to new format
+                            if (!allUsers.some(u => u.email.toLowerCase() === storedUser.email.toLowerCase())) {
+                                allUsers.push({
+                                    ...storedUser,
+                                    id: storedUser.id || Date.now().toString()
+                                });
+                                localStorage.setItem("users", JSON.stringify(allUsers));
+                            }
+                        }
+                    }
+                }
+            } catch (error) {
+                console.error("Error checking users:", error);
+            }
+            
+            if (!userFound) {
+                setErrorMessage("No account found with this email address");
                 setIsLoading(false);
-                setErrorMessage("No account found with this email address on this device");
                 return;
             }
             
-            try {
-                const storedUser = JSON.parse(storedUserStr);
-                
-                if (!storedUser || storedUser.email !== resetEmail) {
-                    setIsLoading(false);
-                    setErrorMessage("No account found with this email address on this device");
-                    return;
-                }
-                
-                // Email found, proceed to password reset form
-                console.log("Email found in localStorage, showing password reset form");
-                setShowPasswordReset(true);
-                setErrorMessage("");
-                
-            } catch (parseError) {
-                console.error("Error parsing stored user:", parseError);
-                setErrorMessage("An error occurred. Please try again.");
-            }
+            // Generate reset token and store it
+            const token = Math.random().toString(36).substring(2, 15) + 
+                          Math.random().toString(36).substring(2, 15);
+            
+            const resetRequests = JSON.parse(localStorage.getItem("passwordResetRequests") || "[]");
+            
+            // Add new request, remove any old ones for this email
+            const newRequests = resetRequests.filter(req => 
+                req.email.toLowerCase() !== resetEmail.toLowerCase()
+            );
+            
+            newRequests.push({
+                email: resetEmail,
+                token: token,
+                expires: new Date(Date.now() + 30 * 60 * 1000).toISOString() // 30 minutes
+            });
+            
+            localStorage.setItem("passwordResetRequests", JSON.stringify(newRequests));
+            
+            // In a real app, we would send an email with the reset link
+            // For this demo, we'll just show the form directly
+            setResetToken(token);
+            setShowPasswordReset(true);
+            setErrorMessage("");
+            
+            // Show a success message
+            setResetSuccess(true);
+            setTimeout(() => setResetSuccess(false), 5000);
+            
         } catch (error) {
-            console.error("Error checking localStorage:", error);
+            console.error("Error generating reset token:", error);
             setErrorMessage("An error occurred. Please try again.");
         } finally {
             setIsLoading(false);
@@ -185,55 +273,96 @@ const SignInPage = () => {
         setIsLoading(true);
         
         try {
-            const storedUserStr = localStorage.getItem("user");
+            // Verify the reset token
+            const resetRequests = JSON.parse(localStorage.getItem("passwordResetRequests") || "[]");
+            const validRequest = resetRequests.find(req => 
+                req.email.toLowerCase() === resetEmail.toLowerCase() && 
+                req.token === resetToken &&
+                new Date(req.expires) > new Date()
+            );
             
-            if (!storedUserStr) {
-                setErrorMessage("No user account found");
+            if (!validRequest) {
+                setErrorMessage("Password reset link expired or invalid. Please try again.");
                 setIsLoading(false);
                 return;
             }
             
+            // Find and update the user's password
+            let userUpdated = false;
+            
+            // First, try the new format
             try {
-                const storedUser = JSON.parse(storedUserStr);
-                
-                if (!storedUser || storedUser.email !== resetEmail) {
-                    setErrorMessage("User account not found or email mismatch");
-                    setIsLoading(false);
-                    return;
-                }
-                
-                // Update the user object with the new password
-                const updatedUser = {
-                    ...storedUser,
-                    password: newPassword,
-                    passwordUpdated: new Date().toISOString()
-                };
-                
-                // Save back to localStorage
-                localStorage.setItem("user", JSON.stringify(updatedUser));
-                console.log("Password updated successfully in localStorage");
-                
-                // Show success message
-                setResetSuccess(true);
-                setErrorMessage("");
-                
-                // Auto-close the forgot password form after 3 seconds
-                setTimeout(() => {
-                    setForgotPasswordOpen(false);
-                    setResetSuccess(false);
-                    setResetEmail("");
-                    setNewPassword("");
-                    setConfirmNewPassword("");
-                    setShowPasswordReset(false);
+                const usersStr = localStorage.getItem("users");
+                if (usersStr) {
+                    let allUsers = JSON.parse(usersStr);
                     
-                    // Pre-fill the email field for login
-                    setEmail(resetEmail);
-                }, 3000);
-                
-            } catch (parseError) {
-                console.error("Error parsing stored user:", parseError);
-                setErrorMessage("An error occurred while updating password");
+                    allUsers = allUsers.map(user => {
+                        if (user.email.toLowerCase() === resetEmail.toLowerCase()) {
+                            userUpdated = true;
+                            return {
+                                ...user,
+                                password: newPassword,
+                                passwordUpdated: new Date().toISOString()
+                            };
+                        }
+                        return user;
+                    });
+                    
+                    localStorage.setItem("users", JSON.stringify(allUsers));
+                }
+            } catch (error) {
+                console.error("Error updating user in new format:", error);
             }
+            
+            // Then also try the legacy format for backward compatibility
+            try {
+                const storedUserStr = localStorage.getItem("user");
+                if (storedUserStr) {
+                    const storedUser = JSON.parse(storedUserStr);
+                    if (storedUser && storedUser.email.toLowerCase() === resetEmail.toLowerCase()) {
+                        const updatedUser = {
+                            ...storedUser,
+                            password: newPassword,
+                            passwordUpdated: new Date().toISOString()
+                        };
+                        
+                        localStorage.setItem("user", JSON.stringify(updatedUser));
+                        userUpdated = true;
+                    }
+                }
+            } catch (error) {
+                console.error("Error updating user in legacy format:", error);
+            }
+            
+            if (!userUpdated) {
+                setErrorMessage("Could not update password. User not found.");
+                setIsLoading(false);
+                return;
+            }
+            
+            // Remove the used reset token
+            const newRequests = resetRequests.filter(req => 
+                !(req.email.toLowerCase() === resetEmail.toLowerCase() && req.token === resetToken)
+            );
+            localStorage.setItem("passwordResetRequests", JSON.stringify(newRequests));
+            
+            // Show success message
+            setResetSuccess(true);
+            
+            // Auto-close the forgot password form after 3 seconds
+            setTimeout(() => {
+                setForgotPasswordOpen(false);
+                setResetSuccess(false);
+                setResetEmail("");
+                setNewPassword("");
+                setConfirmNewPassword("");
+                setShowPasswordReset(false);
+                setResetToken("");
+                
+                // Pre-fill the email field for login
+                setEmail(resetEmail);
+            }, 3000);
+            
         } catch (error) {
             console.error("Error updating password:", error);
             setErrorMessage("An error occurred while updating password");
@@ -274,7 +403,9 @@ const SignInPage = () => {
 
                 {resetSuccess && (
                     <div className="mb-4 rounded-md bg-green-50 p-3 text-sm text-green-500">
-                        Password reset successful! You can now log in with your new password.
+                        {showPasswordReset 
+                            ? "Password reset successful! You can now log in with your new password." 
+                            : "Reset link generated! Please proceed with creating a new password."}
                     </div>
                 )}
 
@@ -340,6 +471,8 @@ const SignInPage = () => {
                                     setForgotPasswordOpen(true);
                                     setResetEmail(email);
                                     setErrorMessage("");
+                                    setShowPasswordReset(false);
+                                    setResetToken("");
                                 }}
                                 className="text-sm font-medium text-[#1e628c] hover:underline"
                             >
@@ -376,7 +509,7 @@ const SignInPage = () => {
                                         placeholder="you@example.com"
                                     />
                                     <p className="mt-1 text-xs text-slate-500">
-                                        We'll check if your account was created on this device.
+                                        We'll check if your account exists on this device.
                                     </p>
                                 </div>
 
@@ -407,6 +540,12 @@ const SignInPage = () => {
                         ) : (
                             // New password form
                             <form onSubmit={handleResetPassword} className="space-y-4">
+                                {resetToken && (
+                                    <div className="mb-4 rounded-md bg-blue-50 p-3 text-sm text-blue-700">
+                                        Reset token is active. Please create a new password.
+                                    </div>
+                                )}
+                                
                                 <div>
                                     <label htmlFor="new-password" className="block text-sm font-medium text-slate-700">
                                         New Password
@@ -463,7 +602,13 @@ const SignInPage = () => {
                                     <button
                                         type="button"
                                         onClick={() => {
-                                            setShowPasswordReset(false);
+                                            if (!resetToken) {
+                                                setShowPasswordReset(false);
+                                            } else {
+                                                setForgotPasswordOpen(false);
+                                                setShowPasswordReset(false);
+                                                setResetToken("");
+                                            }
                                             setErrorMessage("");
                                         }}
                                         className="flex-1 rounded-md border border-slate-300 bg-white py-2 text-sm font-medium text-slate-700 transition-colors hover:bg-slate-50"
