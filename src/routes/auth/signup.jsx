@@ -50,11 +50,13 @@ const SignUpPage = () => {
         
         setIsLoading(true);
         
-        // Simulate registration - in a real app, this would be an API call
+        // Simulate registration 
         setTimeout(() => {
             try {
-                // Check if email already exists
+                // Retrieve existing registered users from localStorage
                 const storedUsers = JSON.parse(localStorage.getItem('registeredUsers') || '[]');
+                
+                // Check if email already exists
                 const existingUser = storedUsers.find(user => user.email === email);
                 
                 if (existingUser) {
@@ -63,12 +65,14 @@ const SignUpPage = () => {
                     return;
                 }
                 
-                // Create user object with form data and password
+                // Create user object with form data
                 const userData = {
-                    name,
-                    email,
-                    password, // Storing password in localStorage (in a real app, this would be hashed)
-                    joined: new Date().toISOString()
+                    id: Date.now().toString(), // Unique ID
+                    name: name.trim(),
+                    email: email.trim(),
+                    password: password, // In a real app, this would be hashed
+                    joined: new Date().toISOString(),
+                    lastLogin: new Date().toISOString()
                 };
                 
                 // Add to registered users
@@ -77,9 +81,11 @@ const SignUpPage = () => {
                 
                 // Create user object for login (without password)
                 const loginUserData = {
-                    name,
-                    email,
-                    joined: userData.joined
+                    id: userData.id,
+                    name: userData.name,
+                    email: userData.email,
+                    joined: userData.joined,
+                    lastLogin: userData.lastLogin
                 };
                 
                 // Store user data and log them in
@@ -240,4 +246,4 @@ const SignUpPage = () => {
     );
 };
 
-export default SignUpPage;
+export default SignUpPage

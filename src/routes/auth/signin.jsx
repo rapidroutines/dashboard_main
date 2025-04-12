@@ -46,8 +46,11 @@ const SignInPage = () => {
         // Simulate authentication - in a real app, this would be an API call
         setTimeout(() => {
             try {
-                // For demo purposes, accept any valid-looking email and password
-                if (email.includes("@") && password.length >= 6) {
+                // Check stored users from localStorage
+                const registeredUsers = JSON.parse(localStorage.getItem('registeredUsers') || '[]');
+                const user = registeredUsers.find(u => u.email === email && u.password === password);
+                
+                if (user) {
                     // Handle Remember Me functionality
                     if (rememberMe) {
                         localStorage.setItem("savedEmail", email);
@@ -57,8 +60,8 @@ const SignInPage = () => {
                     
                     // Create user object with necessary information
                     const userData = { 
-                        email,
-                        name: email.split('@')[0], // Using part of email as name for demo
+                        email: user.email,
+                        name: user.name || email.split('@')[0],
                         lastLogin: new Date().toISOString()
                     };
                     
@@ -94,26 +97,15 @@ const SignInPage = () => {
         
         setIsLoading(true);
         
-        // Check if user exists in localStorage
+        // Check if user exists in registeredUsers
         setTimeout(() => {
-            // First, check if there's a user with this email
-            const user = localStorage.getItem("user");
-            let foundUser = false;
+            const registeredUsers = JSON.parse(localStorage.getItem('registeredUsers') || '[]');
+            const user = registeredUsers.find(u => u.email === email);
             
             if (user) {
-                try {
-                    const parsedUser = JSON.parse(user);
-                    if (parsedUser.email === email) {
-                        foundUser = true;
-                        setUserFound(true);
-                        setResetStage("verify"); // Move to verification stage
-                    }
-                } catch (error) {
-                    console.error("Error parsing user from localStorage:", error);
-                }
-            }
-            
-            if (!foundUser) {
+                setUserFound(true);
+                setResetStage("verify");
+            } else {
                 setErrorMessage("No account found with this email address.");
             }
             
@@ -137,32 +129,30 @@ const SignInPage = () => {
         
         setIsLoading(true);
         
-        // Update the user's password in localStorage
+        // Update the user's password in registeredUsers
         setTimeout(() => {
             try {
-                const userStr = localStorage.getItem("user");
-                if (userStr) {
-                    const user = JSON.parse(userStr);
-                    if (user.email === email) {
-                        // In a real application, you would hash the password before storing it
-                        // Here we're just updating the user object
-                        user.password = newPassword; // Store password (in real app, store hashed password)
-                        localStorage.setItem("user", JSON.stringify(user));
-                        
-                        setResetSuccess(true);
-                        setResetStage("success");
-                        
-                        // Auto-close after successful reset and return to login
-                        setTimeout(() => {
-                            setForgotPasswordOpen(false);
-                            setResetStage("email");
-                            setResetSuccess(false);
-                            setNewPassword("");
-                            setConfirmNewPassword("");
-                        }, 3000);
-                    } else {
-                        setErrorMessage("User email mismatch. Please try again.");
-                    }
+                const registeredUsers = JSON.parse(localStorage.getItem('registeredUsers') || '[]');
+                const userIndex = registeredUsers.findIndex(u => u.email === email);
+                
+                if (userIndex !== -1) {
+                    // Update the user's password
+                    registeredUsers[userIndex].password = newPassword;
+                    
+                    // Save updated users back to localStorage
+                    localStorage.setItem('registeredUsers', JSON.stringify(registeredUsers));
+                    
+                    setResetSuccess(true);
+                    setResetStage("success");
+                    
+                    // Auto-close after successful reset and return to login
+                    setTimeout(() => {
+                        setForgotPasswordOpen(false);
+                        setResetStage("email");
+                        setResetSuccess(false);
+                        setNewPassword("");
+                        setConfirmNewPassword("");
+                    }, 3000);
                 } else {
                     setErrorMessage("User not found. Please try again.");
                 }
@@ -280,7 +270,6 @@ const SignInPage = () => {
                                 type="button" 
                                 onClick={() => {
                                     setForgotPasswordOpen(true);
-                                    setResetEmail(email);
                                 }}
                                 className="text-sm font-medium text-[#1e628c] hover:underline"
                             >
@@ -523,4 +512,4 @@ const SignInPage = () => {
     );
 };
 
-export default SignInPage;
+export default SignInPage
