@@ -1,9 +1,10 @@
 import { useState, useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import { Eye, EyeOff } from "lucide-react";
+import { Eye, EyeOff, Mail } from "lucide-react";
 import { useAuth } from "@/contexts/auth-context";
 import { cn } from "@/utils/cn";
 import logoLight from "@/assets/main_logo.png";
+import { sendPasswordResetEmail } from "@/utils/email-utils";
 
 const SignInPage = () => {
     const [email, setEmail] = useState("");
@@ -79,7 +80,7 @@ const SignInPage = () => {
         }, 1500);
     };
 
-    const handleForgotPassword = (e) => {
+    const handleForgotPassword = async (e) => {
         e.preventDefault();
         
         if (!resetEmail || !resetEmail.includes('@')) {
@@ -89,8 +90,10 @@ const SignInPage = () => {
         
         setIsLoading(true);
         
-        // Simulate password reset email - in a real app, this would be an API call
-        setTimeout(() => {
+        // Send password reset email using EmailJS
+        const result = await sendPasswordResetEmail(resetEmail);
+        
+        if (result.success) {
             setIsLoading(false);
             setResetSuccess(true);
             setErrorMessage("");
@@ -101,7 +104,10 @@ const SignInPage = () => {
                 setResetSuccess(false);
                 setResetEmail("");
             }, 3000);
-        }, 1500);
+        } else {
+            setIsLoading(false);
+            setErrorMessage("Failed to send reset email. Please try again.");
+        }
     };
 
     return (
