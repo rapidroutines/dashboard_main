@@ -1,10 +1,6 @@
 import { useState } from "react";
-<<<<<<< HEAD
 import { Link } from "react-router-dom";
 import { MessageSquare, ChevronRight, Sparkles, Info } from "lucide-react";
-=======
-import { MessageSquare, Sparkles, Info } from "lucide-react";
->>>>>>> a7c3633 (Updated submodule: dashboard_main)
 import { useChatbot } from "@/contexts/chatbot-context";
 import { useAuth } from "@/contexts/auth-context";
 
@@ -47,7 +43,6 @@ export const RecentChatbotChats = ({ maxItems = 2 }) => {
                 <div className="flex flex-col items-center justify-center rounded-lg bg-slate-50 p-6 text-center">
                     <Info className="mb-2 h-12 w-12 text-slate-400" />
                     <p className="text-slate-700">Sign in to see your recent chat history</p>
-<<<<<<< HEAD
                     <div className="mt-4 flex gap-2">
                         <Link to="/signin" className="rounded-lg bg-[#1e628c] px-4 py-2 text-sm font-medium text-white hover:bg-[#174e70]">
                             Sign In
@@ -56,8 +51,6 @@ export const RecentChatbotChats = ({ maxItems = 2 }) => {
                             Sign Up
                         </Link>
                     </div>
-=======
->>>>>>> a7c3633 (Updated submodule: dashboard_main)
                 </div>
             </div>
         );
@@ -71,12 +64,9 @@ export const RecentChatbotChats = ({ maxItems = 2 }) => {
                 <div className="flex flex-col items-center justify-center rounded-lg bg-slate-50 p-6 text-center">
                     <MessageSquare className="mb-2 h-8 w-8 text-slate-400" />
                     <p className="text-slate-600">You haven't had any chats with the AI assistant yet.</p>
-<<<<<<< HEAD
                     <Link to="/chatbot" className="mt-3 text-sm font-medium text-[#1e628c] hover:underline">
                         Start a new conversation
                     </Link>
-=======
->>>>>>> a7c3633 (Updated submodule: dashboard_main)
                 </div>
             </div>
         );
@@ -93,10 +83,7 @@ export const RecentChatbotChats = ({ maxItems = 2 }) => {
                         className="flex items-center gap-1 text-sm font-medium text-[#1e628c] hover:underline"
                     >
                         {expandedView ? "Show Less" : "View All"}
-<<<<<<< HEAD
                         <ChevronRight className="h-4 w-4" strokeWidth={2} />
-=======
->>>>>>> a7c3633 (Updated submodule: dashboard_main)
                     </button>
                 )}
             </div>
@@ -144,7 +131,6 @@ export const RecentChatbotChats = ({ maxItems = 2 }) => {
                                 </div>
                             </div>
                         )}
-<<<<<<< HEAD
                         
                         {/* Link to chatbot */}
                         <div className="mt-3 flex justify-end">
@@ -155,8 +141,6 @@ export const RecentChatbotChats = ({ maxItems = 2 }) => {
                                 Continue conversation →
                             </Link>
                         </div>
-=======
->>>>>>> a7c3633 (Updated submodule: dashboard_main)
                     </div>
                 ))}
             </div>
@@ -169,7 +153,6 @@ export const RecentChatbotChats = ({ maxItems = 2 }) => {
                     Show All ({getChatHistory().length}) Chat Sessions
                 </button>
             )}
-<<<<<<< HEAD
             
             <div className="mt-4 text-center">
                 <Link 
@@ -182,8 +165,3 @@ export const RecentChatbotChats = ({ maxItems = 2 }) => {
         </div>
     );
 };
-=======
-        </div>
-    );
-};
->>>>>>> a7c3633 (Updated submodule: dashboard_main)
