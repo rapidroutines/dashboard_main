@@ -15,6 +15,10 @@ const SignInPage = () => {
     const [forgotPasswordOpen, setForgotPasswordOpen] = useState(false);
     const [resetEmail, setResetEmail] = useState("");
     const [resetSuccess, setResetSuccess] = useState(false);
+    const [newPassword, setNewPassword] = useState("");
+    const [confirmNewPassword, setConfirmNewPassword] = useState("");
+    const [showNewPassword, setShowNewPassword] = useState(false);
+    const [showPasswordReset, setShowPasswordReset] = useState(false);
     
     const navigate = useNavigate();
     const { login } = useAuth();
@@ -55,8 +59,12 @@ const SignInPage = () => {
                     const userData = { 
                         email,
                         name: email.split('@')[0], // Using part of email as name for demo
+                        password: password, // In a real app, this would be hashed
                         lastLogin: new Date().toISOString()
                     };
+                    
+                    // Save to localStorage for our password reset feature
+                    localStorage.setItem("user", JSON.stringify(userData));
                     
                     // Call login function from auth context
                     const success = login(userData);
@@ -76,7 +84,7 @@ const SignInPage = () => {
             } finally {
                 setIsLoading(false);
             }
-        }, 1500);
+        }, 1000);
     };
 
     const handleForgotPassword = (e) => {
@@ -89,19 +97,106 @@ const SignInPage = () => {
         
         setIsLoading(true);
         
-        // Simulate password reset email - in a real app, this would be an API call
+        // Deliberately add a small delay to simulate processing
         setTimeout(() => {
-            setIsLoading(false);
-            setResetSuccess(true);
-            setErrorMessage("");
+            // Check if this email exists in localStorage
+            let userExists = false;
+            try {
+                const storedUserStr = localStorage.getItem("user");
+                console.log("Retrieved from localStorage:", storedUserStr);
+                
+                if (storedUserStr) {
+                    const storedUser = JSON.parse(storedUserStr);
+                    console.log("Checking email:", resetEmail, "against stored email:", storedUser.email);
+                    
+                    if (storedUser && storedUser.email === resetEmail) {
+                        userExists = true;
+                        console.log("Email match found in localStorage");
+                    } else {
+                        console.log("Email doesn't match stored user");
+                    }
+                } else {
+                    console.log("No user found in localStorage");
+                }
+            } catch (error) {
+                console.error("Error checking localStorage:", error);
+            }
             
-            // Auto-close the forgot password form after 3 seconds
-            setTimeout(() => {
-                setForgotPasswordOpen(false);
-                setResetSuccess(false);
-                setResetEmail("");
-            }, 3000);
-        }, 1500);
+            setIsLoading(false);
+            
+            if (!userExists) {
+                setErrorMessage("No account found with this email address on this device");
+                return;
+            }
+            
+            // If the user exists in localStorage, show password reset form
+            setShowPasswordReset(true);
+            setErrorMessage("");
+        }, 800);
+    };
+    
+    const handleResetPassword = (e) => {
+        e.preventDefault();
+        
+        if (!newPassword || newPassword.length < 6) {
+            setErrorMessage("Password must be at least 6 characters");
+            return;
+        }
+        
+        if (newPassword !== confirmNewPassword) {
+            setErrorMessage("Passwords do not match");
+            return;
+        }
+        
+        setIsLoading(true);
+        
+        // Deliberately add a small delay to simulate processing
+        setTimeout(() => {
+            // Update the password in localStorage
+            try {
+                const storedUserStr = localStorage.getItem("user");
+                if (storedUserStr) {
+                    const storedUser = JSON.parse(storedUserStr);
+                    if (storedUser && storedUser.email === resetEmail) {
+                        // Update the user object with the new password
+                        const updatedUser = {
+                            ...storedUser,
+                            password: newPassword, // In a real app, this would be hashed
+                            passwordUpdated: new Date().toISOString()
+                        };
+                        
+                        // Save back to localStorage
+                        localStorage.setItem("user", JSON.stringify(updatedUser));
+                        console.log("Password updated in localStorage:", updatedUser);
+                        
+                        // Show success message
+                        setIsLoading(false);
+                        setResetSuccess(true);
+                        setErrorMessage("");
+                        
+                        // Auto-close the forgot password form after 3 seconds
+                        setTimeout(() => {
+                            setForgotPasswordOpen(false);
+                            setResetSuccess(false);
+                            setResetEmail("");
+                            setNewPassword("");
+                            setConfirmNewPassword("");
+                            setShowPasswordReset(false);
+                        }, 3000);
+                    } else {
+                        setErrorMessage("Error updating password. Email mismatch.");
+                        setIsLoading(false);
+                    }
+                } else {
+                    setErrorMessage("No user found in local storage");
+                    setIsLoading(false);
+                }
+            } catch (error) {
+                console.error("Error updating password:", error);
+                setErrorMessage("An error occurred while updating the password");
+                setIsLoading(false);
+            }
+        }, 800);
     };
 
     return (
@@ -120,7 +215,9 @@ const SignInPage = () => {
                         <>
                             <h1 className="text-2xl font-bold text-slate-800">Reset your password</h1>
                             <p className="mt-2 text-center text-slate-600">
-                                Enter your email address and we'll send you a link to reset your password.
+                                {!showPasswordReset 
+                                    ? "Enter your email address to reset your password." 
+                                    : "Create a new password for your account."}
                             </p>
                         </>
                     )}
@@ -134,7 +231,7 @@ const SignInPage = () => {
 
                 {resetSuccess && (
                     <div className="mb-4 rounded-md bg-green-50 p-3 text-sm text-green-500">
-                        Password reset link sent to your email!
+                        Password reset successful! You can now log in with your new password.
                     </div>
                 )}
 
@@ -218,45 +315,121 @@ const SignInPage = () => {
                         </button>
                     </form>
                 ) : (
-                    <form onSubmit={handleForgotPassword} className="space-y-4">
-                        <div>
-                            <label htmlFor="reset-email" className="block text-sm font-medium text-slate-700">
-                                Email
-                            </label>
-                            <input
-                                id="reset-email"
-                                type="email"
-                                value={resetEmail}
-                                onChange={(e) => setResetEmail(e.target.value)}
-                                className="mt-1 block w-full rounded-md border border-slate-300 px-3 py-2 text-slate-900 placeholder-slate-400 focus:border-[#1e628c] focus:outline-none focus:ring-1 focus:ring-[#1e628c]"
-                                placeholder="you@example.com"
-                            />
-                        </div>
+                    <>
+                        {!showPasswordReset ? (
+                            // Email verification form
+                            <form onSubmit={handleForgotPassword} className="space-y-4">
+                                <div>
+                                    <label htmlFor="reset-email" className="block text-sm font-medium text-slate-700">
+                                        Enter your email address
+                                    </label>
+                                    <input
+                                        id="reset-email"
+                                        type="email"
+                                        value={resetEmail}
+                                        onChange={(e) => setResetEmail(e.target.value)}
+                                        className="mt-1 block w-full rounded-md border border-slate-300 px-3 py-2 text-slate-900 placeholder-slate-400 focus:border-[#1e628c] focus:outline-none focus:ring-1 focus:ring-[#1e628c]"
+                                        placeholder="you@example.com"
+                                    />
+                                    <p className="mt-1 text-xs text-slate-500">
+                                        We'll check if your account was created on this device.
+                                    </p>
+                                </div>
 
-                        <div className="flex gap-3">
-                            <button
-                                type="submit"
-                                disabled={isLoading || resetSuccess}
-                                className={cn(
-                                    "flex-1 rounded-md bg-[#1e628c] py-2 text-sm font-medium text-white transition-colors",
-                                    (isLoading || resetSuccess) ? "opacity-70 cursor-not-allowed" : "hover:bg-[#164d6e]"
-                                )}
-                            >
-                                {isLoading ? "Sending..." : resetSuccess ? "Sent!" : "Reset Password"}
-                            </button>
-                            
-                            <button
-                                type="button"
-                                onClick={() => {
-                                    setForgotPasswordOpen(false);
-                                    setErrorMessage("");
-                                }}
-                                className="flex-1 rounded-md border border-slate-300 bg-white py-2 text-sm font-medium text-slate-700 transition-colors hover:bg-slate-50"
-                            >
-                                Back to Login
-                            </button>
-                        </div>
-                    </form>
+                                <div className="flex gap-3">
+                                    <button
+                                        type="submit"
+                                        disabled={isLoading}
+                                        className={cn(
+                                            "flex-1 rounded-md bg-[#1e628c] py-2 text-sm font-medium text-white transition-colors",
+                                            isLoading ? "opacity-70 cursor-not-allowed" : "hover:bg-[#164d6e]"
+                                        )}
+                                    >
+                                        {isLoading ? "Verifying..." : "Verify Email"}
+                                    </button>
+                                    
+                                    <button
+                                        type="button"
+                                        onClick={() => {
+                                            setForgotPasswordOpen(false);
+                                            setErrorMessage("");
+                                        }}
+                                        className="flex-1 rounded-md border border-slate-300 bg-white py-2 text-sm font-medium text-slate-700 transition-colors hover:bg-slate-50"
+                                    >
+                                        Back to Login
+                                    </button>
+                                </div>
+                            </form>
+                        ) : (
+                            // New password form
+                            <form onSubmit={handleResetPassword} className="space-y-4">
+                                <div>
+                                    <label htmlFor="new-password" className="block text-sm font-medium text-slate-700">
+                                        New Password
+                                    </label>
+                                    <div className="relative mt-1">
+                                        <input
+                                            id="new-password"
+                                            type={showNewPassword ? "text" : "password"}
+                                            value={newPassword}
+                                            onChange={(e) => setNewPassword(e.target.value)}
+                                            className="block w-full rounded-md border border-slate-300 px-3 py-2 text-slate-900 placeholder-slate-400 focus:border-[#1e628c] focus:outline-none focus:ring-1 focus:ring-[#1e628c]"
+                                            placeholder="••••••••"
+                                        />
+                                        <button
+                                            type="button"
+                                            className="absolute inset-y-0 right-0 flex items-center px-3 text-slate-500"
+                                            onClick={() => setShowNewPassword(!showNewPassword)}
+                                        >
+                                            {showNewPassword ? (
+                                                <EyeOff className="h-4 w-4" />
+                                            ) : (
+                                                <Eye className="h-4 w-4" />
+                                            )}
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <div>
+                                    <label htmlFor="confirm-password" className="block text-sm font-medium text-slate-700">
+                                        Confirm New Password
+                                    </label>
+                                    <input
+                                        id="confirm-password"
+                                        type={showNewPassword ? "text" : "password"}
+                                        value={confirmNewPassword}
+                                        onChange={(e) => setConfirmNewPassword(e.target.value)}
+                                        className="mt-1 block w-full rounded-md border border-slate-300 px-3 py-2 text-slate-900 placeholder-slate-400 focus:border-[#1e628c] focus:outline-none focus:ring-1 focus:ring-[#1e628c]"
+                                        placeholder="••••••••"
+                                    />
+                                </div>
+
+                                <div className="flex gap-3">
+                                    <button
+                                        type="submit"
+                                        disabled={isLoading || resetSuccess}
+                                        className={cn(
+                                            "flex-1 rounded-md bg-[#1e628c] py-2 text-sm font-medium text-white transition-colors",
+                                            (isLoading || resetSuccess) ? "opacity-70 cursor-not-allowed" : "hover:bg-[#164d6e]"
+                                        )}
+                                    >
+                                        {isLoading ? "Updating..." : resetSuccess ? "Updated!" : "Update Password"}
+                                    </button>
+                                    
+                                    <button
+                                        type="button"
+                                        onClick={() => {
+                                            setShowPasswordReset(false);
+                                            setErrorMessage("");
+                                        }}
+                                        className="flex-1 rounded-md border border-slate-300 bg-white py-2 text-sm font-medium text-slate-700 transition-colors hover:bg-slate-50"
+                                    >
+                                        Back
+                                    </button>
+                                </div>
+                            </form>
+                        )}
+                    </>
                 )}
 
                 <div className="mt-6 text-center text-sm text-slate-600">
