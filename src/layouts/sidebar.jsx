@@ -23,8 +23,11 @@ export const Sidebar = forwardRef(({ collapsed }, ref) => {
             )}
         >
             {/* Logo and brand section */}
-            <div className="flex items-center p-3 h-[60px] border-b border-slate-100">
-                <a href="https://rapidroutines.org/" className="flex items-center">
+            <div className={cn(
+                "flex h-[60px] border-b border-slate-100",
+                collapsed ? "justify-center items-center" : "items-center p-3"
+            )}>
+                <a href="https://rapidroutines.org/" className="flex items-center justify-center">
                     <img
                         src={collapsed ? faviconLight : logoLight}
                         alt="RapidRoutines"
