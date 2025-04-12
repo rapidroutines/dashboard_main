@@ -1,0 +1,150 @@
+/* Additional responsive utility classes */
+
+/* Safe area insets for mobile devices */
+.pb-safe-area-inset-bottom {
+  padding-bottom: env(safe-area-inset-bottom, 0);
+}
+
+.mt-safe-area-inset-top {
+  margin-top: env(safe-area-inset-top, 0);
+}
+
+/* Prevent text overflow and add ellipsis */
+.text-truncate {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Responsive spacing classes */
+.responsive-p {
+  padding: 0.75rem;
+}
+
+.responsive-m {
+  margin: 0.75rem;
+}
+
+.responsive-gap {
+  gap: 0.75rem;
+}
+
+/* Override font sizes for better readability on small screens */
+@media (max-width: 640px) {
+  h1.title {
+    font-size: 1.5rem !important;
+  }
+  
+  h2.subtitle {
+    font-size: 1.25rem !important;
+  }
+  
+  .text-mobile-xs {
+    font-size: 0.75rem !important;
+  }
+  
+  .responsive-p {
+    padding: 0.5rem;
+  }
+  
+  .responsive-m {
+    margin: 0.5rem;
+  }
+  
+  .responsive-gap {
+    gap: 0.5rem;
+  }
+}
+
+/* Medium screens */
+@media (min-width: 641px) and (max-width: 1023px) {
+  .responsive-p {
+    padding: 1rem;
+  }
+  
+  .responsive-m {
+    margin: 1rem;
+  }
+  
+  .responsive-gap {
+    gap: 1rem;
+  }
+}
+
+/* Large screens */
+@media (min-width: 1024px) {
+  .responsive-p {
+    padding: 1.25rem;
+  }
+  
+  .responsive-m {
+    margin: 1.25rem;
+  }
+  
+  .responsive-gap {
+    gap: 1.25rem;
+  }
+}
+
+/* Touch-friendly sizing for mobile */
+@media (max-width: 640px) {
+  .touch-target {
+    min-height: 44px;
+    min-width: 44px;
+  }
+  
+  button, 
+  a.btn,
+  .clickable,
+  input[type="button"],
+  input[type="submit"] {
+    min-height: 44px;
+    padding: 0.5rem 0.75rem;
+  }
+}
+
+/* Responsive grid classes */
+.responsive-grid-1 {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1rem;
+}
+
+@media (min-width: 640px) {
+  .responsive-grid-2 {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (min-width: 1024px) {
+  .responsive-grid-3 {
+    grid-template-columns: repeat(3, 1fr);
+  }
+  
+  .responsive-grid-4 {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+/* Improve scrolling on mobile */
+@media (max-width: 640px) {
+  .smooth-scroll {
+    -webkit-overflow-scrolling: touch;
+    scroll-behavior: smooth;
+  }
+}
+
+/* Simplified table for mobile */
+@media (max-width: 640px) {
+  .responsive-table {
+    display: block;
+    width: 100%;
+    overflow-x: auto;
+  }
+  
+  .responsive-table th,
+  .responsive-table td {
+    white-space: nowrap;
+    padding: 0.5rem;
+  }
+}
