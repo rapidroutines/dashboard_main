@@ -1,6 +1,5 @@
 import { createContext, useState, useContext, useEffect } from "react";
 import PropTypes from "prop-types";
-import { useAuth } from "./auth-context";
 
 // Create chatbot history context
 const ChatbotContext = createContext({
@@ -13,26 +12,20 @@ const ChatbotContext = createContext({
 export const ChatbotProvider = ({ children }) => {
     const [chatHistory, setChatHistory] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
-    const { user, isAuthenticated } = useAuth();
 
     // Load chat history from localStorage on initial render
     useEffect(() => {
         const loadChatHistoryFromStorage = () => {
             try {
-                if (isAuthenticated && user) {
-                    const userId = user.email; // Use email as unique identifier
-                    const storedHistory = localStorage.getItem(`chatbot_history_${userId}`);
-                    
-                    if (storedHistory) {
-                        const parsedHistory = JSON.parse(storedHistory);
-                        setChatHistory(parsedHistory);
-                        console.log("Loaded chatbot history from storage:", parsedHistory.length);
-                    } else {
-                        console.log("No stored chatbot history found for user:", userId);
-                        setChatHistory([]);
-                    }
+                const storedHistory = localStorage.getItem(`chatbot_history_data`);
+                
+                if (storedHistory) {
+                    const parsedHistory = JSON.parse(storedHistory);
+                    setChatHistory(parsedHistory);
+                    console.log("Loaded chatbot history from storage:", parsedHistory.length);
                 } else {
-                    console.log("User not authenticated, no chatbot history loaded");
+                    console.log("No stored chatbot history found");
+                    setChatHistory([]);
                 }
             } catch (error) {
                 console.error("Error loading chatbot history from storage:", error);
@@ -42,15 +35,14 @@ export const ChatbotProvider = ({ children }) => {
         };
 
         loadChatHistoryFromStorage();
-    }, [isAuthenticated, user]);
+    }, []);
 
     // Save chat history to localStorage whenever it changes
     useEffect(() => {
         const saveChatHistoryToStorage = () => {
             try {
-                if (isAuthenticated && user && chatHistory.length > 0) {
-                    const userId = user.email;
-                    localStorage.setItem(`chatbot_history_${userId}`, JSON.stringify(chatHistory));
+                if (chatHistory.length > 0) {
+                    localStorage.setItem(`chatbot_history_data`, JSON.stringify(chatHistory));
                     console.log("Saved chatbot history to storage:", chatHistory.length);
                 }
             } catch (error) {
@@ -61,7 +53,7 @@ export const ChatbotProvider = ({ children }) => {
         if (!isLoading) {
             saveChatHistoryToStorage();
         }
-    }, [chatHistory, isAuthenticated, user, isLoading]);
+    }, [chatHistory, isLoading]);
 
     // Generate a summary based on conversation
     const generateSummary = (messages) => {
@@ -91,11 +83,6 @@ export const ChatbotProvider = ({ children }) => {
 
     // Add a new chat session
     const addChatSession = (sessionData) => {
-        if (!isAuthenticated || !user) {
-            console.log("User not authenticated, can't save chat session");
-            return false;
-        }
-
         const newSession = {
             id: Date.now(),
             timestamp: new Date().toISOString(),
@@ -110,8 +97,7 @@ export const ChatbotProvider = ({ children }) => {
             
             // Also update in localStorage immediately for redundancy
             try {
-                const userId = user.email;
-                localStorage.setItem(`chatbot_history_${userId}`, JSON.stringify(updatedHistory));
+                localStorage.setItem(`chatbot_history_data`, JSON.stringify(updatedHistory));
                 console.log("Updated chatbot history in storage:", updatedHistory.length);
             } catch (error) {
                 console.error("Error immediately saving chat history to storage:", error);
