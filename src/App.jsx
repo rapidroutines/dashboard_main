@@ -6,7 +6,6 @@ import RepBotPage from "@/routes/repbot/page";
 import ExerciseTrackerPage from "@/routes/exercise-tracker/page";
 import LibraryPage from "@/routes/library/page";
 import RapidTreePage from "@/routes/rapidtree/page";
-import ProfilePage from "@/routes/profile/page";
 
 function App() {
     return (
@@ -18,7 +17,6 @@ function App() {
                 <Route path="/repbot" element={<Layout><RepBotPage /></Layout>} />
                 <Route path="/exercise-tracker" element={<Layout><ExerciseTrackerPage /></Layout>} />
                 <Route path="/rapidtree" element={<Layout><RapidTreePage /></Layout>} />
-                <Route path="/profile" element={<Layout><ProfilePage /></Layout>} />
             </Routes>
         </Router>
     );
