@@ -40,25 +40,7 @@ export const SavedExercises = ({ maxItems = 4 }) => {
         );
     }
 
-    if (!isAuthenticated) {
-        return (
-            <div className="rounded-xl bg-white p-6">
-                <h2 className="mb-4 text-xl font-bold">Saved Exercises</h2>
-                <div className="flex flex-col items-center justify-center rounded-lg bg-slate-50 p-6 text-center">
-                    <InfoIcon className="mb-2 h-12 w-12 text-slate-400" />
-                    <p className="text-slate-600">Sign in to save and track your favorite exercises</p>
-                    <div className="mt-4 flex gap-2">
-                        <Link to="/signin" className="rounded-lg bg-[#1e628c] px-4 py-2 text-sm font-medium text-white">
-                            Sign In
-                        </Link>
-                        <Link to="/signup" className="rounded-lg border border-slate-300 px-4 py-2 text-sm font-medium text-slate-700">
-                            Sign Up
-                        </Link>
-                    </div>
-                </div>
-            </div>
-        );
-    }
+    
 
     if (!savedExercises || savedExercises.length === 0) {
         return (
