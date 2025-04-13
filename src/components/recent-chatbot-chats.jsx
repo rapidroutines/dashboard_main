@@ -1,12 +1,10 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import { MessageSquare, ChevronRight, Sparkles, Info } from "lucide-react";
+import { MessageSquare, ChevronRight, Sparkles } from "lucide-react";
 import { useChatbot } from "@/contexts/chatbot-context";
-import { useAuth } from "@/contexts/auth-context";
 
 export const RecentChatbotChats = ({ maxItems = 2 }) => {
     const { getChatHistory, isLoading } = useChatbot();
-    const { isAuthenticated } = useAuth();
     const [expandedView, setExpandedView] = useState(false);
     
     // Get the chats to display based on expanded state
@@ -34,8 +32,6 @@ export const RecentChatbotChats = ({ maxItems = 2 }) => {
             </div>
         );
     }
-    
-  
     
     // If no chats, show empty state
     if (!chatsToDisplay || chatsToDisplay.length === 0) {
