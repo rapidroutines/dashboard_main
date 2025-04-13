@@ -1,6 +1,7 @@
 import { useState, useRef } from "react";
 import { ChevronsLeft } from "lucide-react";
 import PropTypes from "prop-types";
+import userImg from "@/assets/user.png";
 
 export const Header = ({ collapsed, setCollapsed }) => {
     return (
@@ -12,6 +13,17 @@ export const Header = ({ collapsed, setCollapsed }) => {
                 >
                     <ChevronsLeft className={collapsed ? "rotate-180" : ""} />
                 </button>
+            </div>
+            
+            {/* User image in top-right corner */}
+            <div className="flex items-center">
+                <div className="h-9 w-9 cursor-pointer overflow-hidden rounded-full border border-slate-200 hover:shadow-md transition-all">
+                    <img 
+                        src={userImg} 
+                        alt="User" 
+                        className="h-full w-full object-cover"
+                    />
+                </div>
             </div>
         </header>
     );
