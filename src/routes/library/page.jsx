@@ -450,20 +450,15 @@ const LibraryPage = () => {
     const { addSavedExercise, removeSavedExercise, isSaved } = useSavedExercises();
     
     // Handle save/unsave function
-    const handleSaveToggle = (e, exercise) => {
-        e.stopPropagation();
-        
-        if (!isAuthenticated) {
-            alert("Please sign in to save exercises to your library.");
-            return;
-        }
-        
-        if (isSaved(exercise.id)) {
-            removeSavedExercise(exercise.id);
-        } else {
-            addSavedExercise(exercise);
-        }
-    };
+const handleSaveToggle = (e, exercise) => {
+    e.stopPropagation();
+    
+    if (isSaved(exercise.id)) {
+        removeSavedExercise(exercise.id);
+    } else {
+        addSavedExercise(exercise);
+    }
+};
     
     // Show exercise details modal
     const showExerciseDetails = (exercise) => {
