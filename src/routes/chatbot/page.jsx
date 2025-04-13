@@ -2,7 +2,6 @@ import { useState, useEffect, useRef } from "react";
 import { useSearchParams } from "react-router-dom";
 import { Footer } from "@/layouts/footer";
 import { MessageSquare, AlertCircle } from "lucide-react";
-import { useAuth } from "@/contexts/auth-context";
 import { useChatbot } from "@/contexts/chatbot-context";
 import { sendMessageToIframe, createIframeMessageHandler, loadChatHistory } from "@/utils/iframe-message-utils";
 
@@ -13,7 +12,6 @@ const ChatbotPage = () => {
     const [notification, setNotification] = useState(null);
     const [iframeLoaded, setIframeLoaded] = useState(false);
     const iframeRef = useRef(null);
-    const { isAuthenticated } = useAuth();
     const { addChatSession, getChatHistory } = useChatbot();
     
     // Get conversation ID from URL if it exists
@@ -27,7 +25,7 @@ const ChatbotPage = () => {
         if (chatEnded) return; // Prevent duplicate saves
         
         // Only save if there are actual messages
-        if (isAuthenticated && currentConversation.current.length > 0) {
+        if (currentConversation.current.length > 0) {
             console.log("Saving chat conversation:", currentConversation.current);
             
             // Add to chat history
@@ -38,7 +36,7 @@ const ChatbotPage = () => {
             // Show notification
             setNotification({
                 type: "success",
-                message: "Chat conversation saved to your dashboard!"
+                message: "Chat conversation saved!"
             });
             
             // Auto hide notification after 3 seconds
@@ -125,7 +123,7 @@ const ChatbotPage = () => {
         return () => {
             window.removeEventListener("message", handleMessage);
         };
-    }, [isAuthenticated, addChatSession]);
+    }, [addChatSession]);
 
     return (
         <div className="flex flex-col gap-y-6">
@@ -175,15 +173,9 @@ const ChatbotPage = () => {
                 </div>
             </div>
             
-            {isAuthenticated ? (
-                <div className="text-center text-sm text-slate-600">
-                    <p>Your chat conversations are automatically saved to your dashboard when you finish chatting.</p>
-                </div>
-            ) : (
-                <div className="text-center text-sm text-slate-600">
-                    <p>Sign in to automatically save your chat conversations to your dashboard.</p>
-                </div>
-            )}
+            <div className="text-center text-sm text-slate-600">
+                <p>Your chat conversations are automatically saved when you finish chatting.</p>
+            </div>
 
             <Footer />
         </div>
