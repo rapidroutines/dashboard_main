@@ -1,13 +1,11 @@
 import { useState } from "react";
 import { useSavedExercises } from "@/contexts/saved-exercises-context";
-import { useAuth } from "@/contexts/auth-context";
 import { Link } from "react-router-dom";
-import { Dumbbell, ChevronRight, Trash2, InfoIcon } from "lucide-react";
+import { Dumbbell, ChevronRight, Trash2 } from "lucide-react";
 import { cn } from "@/utils/cn";
 
 export const SavedExercises = ({ maxItems = 4 }) => {
     const { savedExercises, removeSavedExercise, isLoading } = useSavedExercises();
-    const { isAuthenticated } = useAuth();
     const [expandedView, setExpandedView] = useState(false);
 
     const exercisesToDisplay = expandedView
@@ -39,8 +37,6 @@ export const SavedExercises = ({ maxItems = 4 }) => {
             </div>
         );
     }
-
-    
 
     if (!savedExercises || savedExercises.length === 0) {
         return (
