@@ -1,12 +1,10 @@
 import { useState, useEffect, useRef } from "react";
 import { Loader2, Info, Check } from "lucide-react";
-import { useAuth } from "@/contexts/auth-context";
 import { useExercises } from "@/contexts/exercise-context";
 
 const RepBotPage = () => {
     const [isLoading, setIsLoading] = useState(true);
     const [notification, setNotification] = useState(null);
-    const { isAuthenticated } = useAuth();
     const { addExercise } = useExercises();
     const iframeRef = useRef(null);
     
@@ -15,8 +13,6 @@ const RepBotPage = () => {
     
     // Listen for messages from the iframe
     useEffect(() => {
-        if (!isAuthenticated) return; // Only track for authenticated users
-        
         const handleMessage = (event) => {
             // Only accept messages from our iframe source domains
             if (
@@ -61,12 +57,10 @@ const RepBotPage = () => {
         return () => {
             window.removeEventListener("message", handleMessage);
         };
-    }, [isAuthenticated, addExercise]);
+    }, [addExercise]);
     
     // For backwards compatibility, check localStorage as a fallback (with duplicate prevention)
     useEffect(() => {
-        if (!isAuthenticated) return;
-        
         // Keep track of processed localStorage items
         const processedStorageItems = new Set();
         
@@ -121,7 +115,7 @@ const RepBotPage = () => {
         checkLocalStorageForExercises();
         
         return () => clearInterval(interval);
-    }, [isAuthenticated, addExercise]);
+    }, [addExercise]);
     
     // Format exercise type name nicely
     const formatExerciseType = (exerciseType) => {
@@ -189,15 +183,9 @@ const RepBotPage = () => {
                     style={{ borderRadius: '0.5rem' }}
                 />
                 
-                {isAuthenticated ? (
-                    <div className="absolute bottom-4 left-4 bg-green-100 text-green-800 px-4 py-2 rounded-lg text-sm flex items-center">
-                        <Check className="h-4 w-4 mr-2" /> Your completed exercises will be saved to your account
-                    </div>
-                ) : (
-                    <div className="absolute bottom-4 left-4 bg-blue-100 text-blue-800 px-4 py-2 rounded-lg text-sm flex items-center">
-                        <Info className="h-4 w-4 mr-2" /> Sign in to save your exercise progress
-                    </div>
-                )}
+                <div className="absolute bottom-4 left-4 bg-green-100 text-green-800 px-4 py-2 rounded-lg text-sm flex items-center">
+                    <Check className="h-4 w-4 mr-2" /> Your completed exercises will be saved automatically
+                </div>
             </div>
         </div>
     );
