@@ -12,9 +12,9 @@ import RepBotPage from "@/routes/repbot/page";
 import ExerciseTrackerPage from "@/routes/exercise-tracker/page";
 import LibraryPage from "@/routes/library/page";
 import RapidTreePage from "@/routes/rapidtree/page";
-//import ProfilePage from "@/routes/profile/page";
-//import SignInPage from "@/routes/auth/signin";
-//import SignUpPage from "@/routes/auth/signup";
+import ProfilePage from "@/routes/profile/page";
+import SignInPage from "@/routes/auth/signin";
+import SignUpPage from "@/routes/auth/signup";
 
 function App() {
     return (
