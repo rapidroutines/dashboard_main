@@ -1,6 +1,5 @@
 import { createContext, useState, useContext, useEffect } from "react";
 import PropTypes from "prop-types";
-import { useAuth } from "./auth-context";
 
 // Create exercise tracking context
 const ExerciseContext = createContext({
@@ -13,26 +12,20 @@ const ExerciseContext = createContext({
 export const ExerciseProvider = ({ children }) => {
     const [exercises, setExercises] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
-    const { user, isAuthenticated } = useAuth();
 
     // Load exercises from localStorage on initial render
     useEffect(() => {
         const loadExercisesFromStorage = () => {
             try {
-                if (isAuthenticated && user) {
-                    const userId = user.email; // Use email as unique identifier
-                    const storedExercises = localStorage.getItem(`exercises_${userId}`);
-                    
-                    if (storedExercises) {
-                        const parsedExercises = JSON.parse(storedExercises);
-                        setExercises(parsedExercises);
-                        console.log("Loaded exercises from storage:", parsedExercises.length);
-                    } else {
-                        console.log("No stored exercises found for user:", userId);
-                        setExercises([]);
-                    }
+                const storedExercises = localStorage.getItem(`exercises_data`);
+                
+                if (storedExercises) {
+                    const parsedExercises = JSON.parse(storedExercises);
+                    setExercises(parsedExercises);
+                    console.log("Loaded exercises from storage:", parsedExercises.length);
                 } else {
-                    console.log("User not authenticated, no exercises loaded");
+                    console.log("No stored exercises found");
+                    setExercises([]);
                 }
             } catch (error) {
                 console.error("Error loading exercises from storage:", error);
@@ -42,15 +35,14 @@ export const ExerciseProvider = ({ children }) => {
         };
 
         loadExercisesFromStorage();
-    }, [isAuthenticated, user]);
+    }, []);
 
     // Save exercises to localStorage whenever they change
     useEffect(() => {
         const saveExercisesToStorage = () => {
             try {
-                if (isAuthenticated && user && exercises.length > 0) {
-                    const userId = user.email;
-                    localStorage.setItem(`exercises_${userId}`, JSON.stringify(exercises));
+                if (exercises.length > 0) {
+                    localStorage.setItem(`exercises_data`, JSON.stringify(exercises));
                     console.log("Saved exercises to storage:", exercises.length);
                 }
             } catch (error) {
@@ -61,15 +53,10 @@ export const ExerciseProvider = ({ children }) => {
         if (!isLoading) {
             saveExercisesToStorage();
         }
-    }, [exercises, isAuthenticated, user, isLoading]);
+    }, [exercises, isLoading]);
 
     // Add a new exercise record
     const addExercise = (exerciseData) => {
-        if (!isAuthenticated || !user) {
-            console.log("User not authenticated, can't add exercise");
-            return false;
-        }
-
         const newExercise = {
             id: Date.now(),
             timestamp: new Date().toISOString(),
@@ -83,8 +70,7 @@ export const ExerciseProvider = ({ children }) => {
             
             // Also update in localStorage immediately for redundancy
             try {
-                const userId = user.email;
-                localStorage.setItem(`exercises_${userId}`, JSON.stringify(updatedExercises));
+                localStorage.setItem(`exercises_data`, JSON.stringify(updatedExercises));
                 console.log("Updated exercises in storage:", updatedExercises.length);
             } catch (error) {
                 console.error("Error immediately saving exercise to storage:", error);
