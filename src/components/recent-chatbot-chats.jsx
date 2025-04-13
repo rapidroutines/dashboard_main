@@ -35,26 +35,7 @@ export const RecentChatbotChats = ({ maxItems = 2 }) => {
         );
     }
     
-    // If not authenticated, show sign-in prompt
-    if (!isAuthenticated) {
-        return (
-            <div className="rounded-xl bg-white p-6 shadow-md">
-                <h2 className="mb-4 text-xl font-bold">Recent Chatbot Chats</h2>
-                <div className="flex flex-col items-center justify-center rounded-lg bg-slate-50 p-6 text-center">
-                    <Info className="mb-2 h-12 w-12 text-slate-400" />
-                    <p className="text-slate-700">Sign in to see your recent chat history</p>
-                    <div className="mt-4 flex gap-2">
-                        <Link to="/signin" className="rounded-lg bg-[#1e628c] px-4 py-2 text-sm font-medium text-white hover:bg-[#174e70]">
-                            Sign In
-                        </Link>
-                        <Link to="/signup" className="rounded-lg border border-slate-300 px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50">
-                            Sign Up
-                        </Link>
-                    </div>
-                </div>
-            </div>
-        );
-    }
+  
     
     // If no chats, show empty state
     if (!chatsToDisplay || chatsToDisplay.length === 0) {
