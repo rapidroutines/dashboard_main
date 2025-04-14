@@ -183,13 +183,15 @@ const RepBotPage = () => {
                     allowFullScreen
                     style={{ borderRadius: '0.5rem' }}
                 />
-                
-                <div className="absolute bottom-4 left-4 max-w-xs bg-white/90 backdrop-blur-sm border border-slate-200 px-4 py-3 rounded-lg text-sm shadow-sm">
-                    <div className="flex items-center text-green-700 mb-1">
-                        <Check className="h-4 w-4 mr-2 flex-shrink-0" /> 
-                        <span>Your completed exercises will be saved automatically</span>
-                    </div>
-                    <p className="text-xs text-slate-600">Note: The AI model may take 1-2 minutes to start working correctly</p>
+            </div>
+            
+            {/* Bottom notification bar (similar to chatbot page) */}
+            <div className="fixed bottom-0 left-0 right-0 bg-gray-100 border-t border-gray-300 p-2 text-sm text-gray-600 flex justify-between items-center">
+                <div className="text-center flex-1">
+                    Please allow 1-2 minutes for repbot to become active.
+                </div>
+                <div className="text-center flex-1">
+                    Your exercises will be saved automatically.
                 </div>
             </div>
         </div>
