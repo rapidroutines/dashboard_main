@@ -1,13 +1,14 @@
 import { useExercises } from "@/contexts/exercise-context";
-import { DumbbellIcon, Calendar, Activity, ChevronRight, RefreshCw } from "lucide-react";
+import { DumbbellIcon, Calendar, Activity, ChevronRight, RefreshCw, Trash2, XCircle, AlertCircle } from "lucide-react";
 import { useState, useEffect } from "react";
 
 export const ExerciseLog = ({ maxItems = 5 }) => {
-    const { getExercises, isLoading } = useExercises();
+    const { getExercises, deleteExercise, deleteAllExercises, isLoading } = useExercises();
     const [expandedView, setExpandedView] = useState(false);
     const [exercises, setExercises] = useState([]);
     const [groupedExercises, setGroupedExercises] = useState([]);
     const [refreshKey, setRefreshKey] = useState(0);
+    const [notification, setNotification] = useState(null);
     
     // Get exercises and update when new ones are added
     useEffect(() => {
@@ -114,6 +115,53 @@ export const ExerciseLog = ({ maxItems = 5 }) => {
         return names[exerciseType] || exerciseType;
     };
     
+    // Handle deleting a group of exercises
+    const handleDeleteExerciseGroup = (e, exerciseGroup) => {
+        e.stopPropagation();
+        
+        if (confirm(`Are you sure you want to delete all ${exerciseGroup.count} ${formatExerciseType(exerciseGroup.exerciseType)} sessions from ${new Date(exerciseGroup.timestamp).toLocaleDateString()}?`)) {
+            // Delete each exercise in the group
+            let deleteSuccess = true;
+            exerciseGroup.exercises.forEach(exercise => {
+                if (!deleteExercise(exercise.id)) {
+                    deleteSuccess = false;
+                }
+            });
+            
+            if (deleteSuccess) {
+                setNotification({
+                    type: "success",
+                    message: `Deleted ${exerciseGroup.count} ${formatExerciseType(exerciseGroup.exerciseType)} sessions`
+                });
+                
+                // Refresh the list
+                setRefreshKey(prev => prev + 1);
+                
+                // Auto hide notification after 3 seconds
+                setTimeout(() => {
+                    setNotification(null);
+                }, 3000);
+            }
+        }
+    };
+    
+    // Handle deleting all exercises
+    const handleDeleteAllExercises = () => {
+        const success = deleteAllExercises();
+        
+        if (success) {
+            setNotification({
+                type: "success",
+                message: "All exercise records deleted successfully"
+            });
+            
+            // Auto hide notification after 3 seconds
+            setTimeout(() => {
+                setNotification(null);
+            }, 3000);
+        }
+    };
+    
     // Manual refresh function
     const handleRefresh = () => {
         const allExercises = getExercises();
@@ -127,7 +175,7 @@ export const ExerciseLog = ({ maxItems = 5 }) => {
         setGroupedExercises(limitedGroups);
     };
     
-    if (isLoading) {
+        if (isLoading) {
         return (
             <div className="flex h-40 items-center justify-center rounded-lg bg-white p-6 shadow-md">
                 <div className="h-8 w-8 animate-spin rounded-full border-4 border-slate-200 border-t-[#1e628c]"></div>
@@ -159,9 +207,44 @@ export const ExerciseLog = ({ maxItems = 5 }) => {
     
     return (
         <div className="rounded-xl bg-white p-6 shadow-md">
+            {/* Notification */}
+            {notification && (
+                <div 
+                    className={`fixed top-4 right-4 z-50 flex items-center gap-2 rounded-lg p-3 pr-4 shadow-md transition-all ${
+                        notification.type === "success" ? "bg-green-100 text-green-800" : "bg-red-100 text-red-800"
+                    }`}
+                >
+                    {notification.type === "success" ? (
+                        <div className="flex items-center">
+                            <div className="mr-2 rounded-full bg-green-200 p-1">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                    <polyline points="20 6 9 17 4 12"></polyline>
+                                </svg>
+                            </div>
+                            {notification.message}
+                        </div>
+                    ) : (
+                        <div className="flex items-center">
+                            <AlertCircle className="mr-2 h-5 w-5" />
+                            {notification.message}
+                        </div>
+                    )}
+                </div>
+            )}
+            
             <div className="mb-4 flex items-center justify-between">
                 <h2 className="text-xl font-bold">Exercise Log</h2>
                 <div className="flex items-center gap-3">
+                    {exercises.length > 0 && (
+                        <button
+                            onClick={handleDeleteAllExercises}
+                            className="flex items-center gap-1 rounded-md px-2 py-1 text-sm font-medium text-red-600 hover:bg-red-50"
+                            title="Delete all exercise records"
+                        >
+                            <XCircle className="h-4 w-4" />
+                            <span className="hidden sm:inline">Delete All</span>
+                        </button>
+                    )}
                     <button
                         onClick={handleRefresh}
                         className="flex items-center gap-1 text-sm font-medium text-[#1e628c] hover:underline"
@@ -169,13 +252,15 @@ export const ExerciseLog = ({ maxItems = 5 }) => {
                     >
                         <RefreshCw className="h-4 w-4" strokeWidth={2} />
                     </button>
-                    <button
-                        onClick={() => setExpandedView(!expandedView)}
-                        className="flex items-center gap-1 text-sm font-medium text-[#1e628c] hover:underline"
-                    >
-                        {expandedView ? "Show Less" : "View All"}
-                        <ChevronRight className="h-4 w-4" strokeWidth={2} />
-                    </button>
+                    {groupedExercises.length > maxItems && (
+                        <button
+                            onClick={() => setExpandedView(!expandedView)}
+                            className="flex items-center gap-1 text-sm font-medium text-[#1e628c] hover:underline"
+                        >
+                            {expandedView ? "Show Less" : "View All"}
+                            <ChevronRight className="h-4 w-4" strokeWidth={2} />
+                        </button>
+                    )}
                 </div>
             </div>
             
@@ -191,9 +276,18 @@ export const ExerciseLog = ({ maxItems = 5 }) => {
                                     x{group.totalReps} {formatExerciseType(group.exerciseType)}
                                     {group.count > 1 && <span className="ml-1 text-xs text-slate-500">({group.count} sessions)</span>}
                                 </p>
-                                <div className="flex items-center gap-1 text-xs text-slate-500">
-                                    <Calendar className="h-3 w-3" />
-                                    <span>{formatDate(group.timestamp)}</span>
+                                <div className="flex items-center gap-2">
+                                    <button
+                                        onClick={(e) => handleDeleteExerciseGroup(e, group)}
+                                        className="rounded-full p-1 text-slate-400 hover:bg-red-50 hover:text-red-500"
+                                        title="Delete these exercise records"
+                                    >
+                                        <Trash2 className="h-3.5 w-3.5" />
+                                    </button>
+                                    <div className="flex items-center gap-1 text-xs text-slate-500">
+                                        <Calendar className="h-3 w-3" />
+                                        <span>{formatDate(group.timestamp)}</span>
+                                    </div>
                                 </div>
                             </div>
                         </div>
