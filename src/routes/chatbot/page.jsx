@@ -1,18 +1,18 @@
 import { useState, useEffect, useRef } from "react";
 import { useSearchParams } from "react-router-dom";
 import { Footer } from "@/layouts/footer";
-import { MessageSquare, AlertCircle } from "lucide-react";
+import { MessageSquare, AlertCircle, Check, XCircle } from "lucide-react";
 import { useChatbot } from "@/contexts/chatbot-context";
 import { sendMessageToIframe, createIframeMessageHandler, loadChatHistory } from "@/utils/iframe-message-utils";
 
 const ChatbotPage = () => {
-    const [searchParams] = useSearchParams();
+    const [searchParams, setSearchParams] = useSearchParams();
     const [isLoading, setIsLoading] = useState(true);
     const [chatEnded, setChatEnded] = useState(false);
     const [notification, setNotification] = useState(null);
     const [iframeLoaded, setIframeLoaded] = useState(false);
     const iframeRef = useRef(null);
-    const { addChatSession, getChatHistory } = useChatbot();
+    const { addChatSession, getChatHistory, deleteChatSession } = useChatbot();
     
     // Get conversation ID from URL if it exists
     const conversationId = searchParams.get('conversationId');
@@ -34,15 +34,7 @@ const ChatbotPage = () => {
             });
             
             // Show notification
-            setNotification({
-                type: "success",
-                message: "Chat conversation saved!"
-            });
-            
-            // Auto hide notification after 3 seconds
-            setTimeout(() => {
-                setNotification(null);
-            }, 3000);
+            showNotification("success", "Chat conversation saved!");
             
             // Reset current conversation
             setChatEnded(true);
@@ -75,11 +67,47 @@ const ChatbotPage = () => {
                         console.error("Failed to load conversation history");
                     }
                 }, 1500);
+            } else {
+                // Conversation not found, clear the conversationId from URL
+                if (conversationId) {
+                    showNotification("error", "Conversation not found. Starting a new conversation.");
+                    setSearchParams({});
+                }
             }
         };
         
         loadPreviousConversation();
-    }, [conversationId, getChatHistory, iframeLoaded]);
+    }, [conversationId, getChatHistory, iframeLoaded, setSearchParams]);
+    
+    // Handle delete conversation
+    const handleDeleteConversation = () => {
+        if (!conversationId) return;
+        
+        if (confirm("Are you sure you want to delete this conversation? This action cannot be undone.")) {
+            // Delete the conversation
+            const success = deleteChatSession(parseInt(conversationId));
+            
+            if (success) {
+                showNotification("success", "Conversation deleted successfully");
+                
+                // Clear the URL parameter and redirect to a new chat
+                setTimeout(() => {
+                    setSearchParams({});
+                    window.location.reload(); // Force reload to start fresh
+                }, 1500);
+            }
+        }
+    };
+    
+    // Show notification
+    const showNotification = (type, message) => {
+        setNotification({ type, message });
+        
+        // Auto hide after 5 seconds
+        setTimeout(() => {
+            setNotification(null);
+        }, 5000);
+    };
     
     // Check for chat end when component unmounts
     useEffect(() => {
@@ -127,17 +155,31 @@ const ChatbotPage = () => {
 
     return (
         <div className="flex flex-col gap-y-6">
-            <h1 className="title">AI Fitness Assistant</h1>
+            <div className="flex items-center justify-between">
+                <h1 className="title">AI Fitness Assistant</h1>
+                
+                {conversationId && (
+                    <button
+                        onClick={handleDeleteConversation}
+                        className="flex items-center gap-2 rounded-lg bg-red-100 px-3 py-2 text-sm font-medium text-red-600 hover:bg-red-200"
+                    >
+                        <XCircle className="h-4 w-4" />
+                        Delete Conversation
+                    </button>
+                )}
+            </div>
             
             {/* Notification */}
             {notification && (
                 <div 
                     className={`fixed top-4 right-4 z-50 flex items-center gap-2 rounded-lg p-3 pr-4 shadow-md transition-all ${
-                        notification.type === "success" ? "bg-green-100 text-green-800" : "bg-red-100 text-red-800"
+                        notification.type === "success" ? "bg-green-100 text-green-800" : 
+                        notification.type === "error" ? "bg-red-100 text-red-800" : 
+                        "bg-blue-100 text-blue-800"
                     }`}
                 >
                     {notification.type === "success" ? (
-                        <MessageSquare className="h-5 w-5" />
+                        <Check className="h-5 w-5" />
                     ) : (
                         <AlertCircle className="h-5 w-5" />
                     )}
