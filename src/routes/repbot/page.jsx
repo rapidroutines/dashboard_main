@@ -165,9 +165,10 @@ const RepBotPage = () => {
             <div className="relative flex-1 w-full overflow-hidden bg-white dark:bg-slate-950 rounded-lg shadow-sm">
                 {isLoading && (
                     <div className="absolute inset-0 flex items-center justify-center bg-white/80 dark:bg-slate-950/80 z-10">
-                        <div className="flex flex-col items-center">
+                        <div className="flex flex-col items-center text-center">
                             <Loader2 className="h-10 w-10 animate-spin text-[#1e628c]" />
                             <p className="mt-2 text-slate-600 dark:text-slate-300">Loading RepBot...</p>
+                            <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">The AI model may take 1-2 minutes to initialize</p>
                         </div>
                     </div>
                 )}
@@ -183,8 +184,12 @@ const RepBotPage = () => {
                     style={{ borderRadius: '0.5rem' }}
                 />
                 
-                <div className="absolute bottom-4 left-4 bg-green-100 text-green-800 px-4 py-2 rounded-lg text-sm flex items-center">
-                    <Check className="h-4 w-4 mr-2" /> Your completed exercises will be saved automatically
+                <div className="absolute bottom-4 left-4 max-w-xs bg-white/90 backdrop-blur-sm border border-slate-200 px-4 py-3 rounded-lg text-sm shadow-sm">
+                    <div className="flex items-center text-green-700 mb-1">
+                        <Check className="h-4 w-4 mr-2 flex-shrink-0" /> 
+                        <span>Your completed exercises will be saved automatically</span>
+                    </div>
+                    <p className="text-xs text-slate-600">Note: The AI model may take 1-2 minutes to start working correctly</p>
                 </div>
             </div>
         </div>
