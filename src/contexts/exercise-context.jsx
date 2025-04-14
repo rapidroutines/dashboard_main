@@ -6,6 +6,8 @@ const ExerciseContext = createContext({
     exercises: [],
     addExercise: () => {},
     getExercises: () => [],
+    deleteExercise: () => {},
+    deleteAllExercises: () => {},
     isLoading: false,
 });
 
@@ -44,6 +46,10 @@ export const ExerciseProvider = ({ children }) => {
                 if (exercises.length > 0) {
                     localStorage.setItem(`exercises_data`, JSON.stringify(exercises));
                     console.log("Saved exercises to storage:", exercises.length);
+                } else {
+                    // Remove the item from localStorage if exercises are empty
+                    localStorage.removeItem(`exercises_data`);
+                    console.log("Removed exercises from storage (empty)");
                 }
             } catch (error) {
                 console.error("Error saving exercises to storage:", error);
@@ -81,6 +87,50 @@ export const ExerciseProvider = ({ children }) => {
         
         return true;
     };
+    
+    // Delete a specific exercise by ID
+    const deleteExercise = (exerciseId) => {
+        if (!exerciseId) return false;
+        
+        setExercises(prevExercises => {
+            const updatedExercises = prevExercises.filter(exercise => exercise.id !== exerciseId);
+            
+            // Update in localStorage immediately
+            try {
+                if (updatedExercises.length > 0) {
+                    localStorage.setItem(`exercises_data`, JSON.stringify(updatedExercises));
+                } else {
+                    localStorage.removeItem(`exercises_data`);
+                }
+                console.log("Updated exercises in storage after deletion:", updatedExercises.length);
+            } catch (error) {
+                console.error("Error saving updated exercises to storage:", error);
+            }
+            
+            return updatedExercises;
+        });
+        
+        return true;
+    };
+    
+    // Delete all exercises
+    const deleteAllExercises = () => {
+        if (confirm("Are you sure you want to delete all exercise records? This action cannot be undone.")) {
+            setExercises([]);
+            
+            // Remove from localStorage immediately
+            try {
+                localStorage.removeItem(`exercises_data`);
+                console.log("Removed all exercises from storage");
+            } catch (error) {
+                console.error("Error removing exercises from storage:", error);
+            }
+            
+            return true;
+        }
+        
+        return false;
+    };
 
     // Get exercises with optional filtering
     const getExercises = (count = null) => {
@@ -101,6 +151,8 @@ export const ExerciseProvider = ({ children }) => {
                 exercises,
                 addExercise,
                 getExercises,
+                deleteExercise,
+                deleteAllExercises,
                 isLoading,
             }}
         >
