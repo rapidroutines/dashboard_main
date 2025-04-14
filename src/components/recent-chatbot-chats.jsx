@@ -1,11 +1,12 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import { MessageSquare, ChevronRight, Sparkles } from "lucide-react";
+import { MessageSquare, ChevronRight, Sparkles, Trash2, XCircle, AlertCircle } from "lucide-react";
 import { useChatbot } from "@/contexts/chatbot-context";
 
 export const RecentChatbotChats = ({ maxItems = 2 }) => {
-    const { getChatHistory, isLoading } = useChatbot();
+    const { getChatHistory, deleteChatSession, deleteAllChatSessions, isLoading } = useChatbot();
     const [expandedView, setExpandedView] = useState(false);
+    const [notification, setNotification] = useState(null);
     
     // Get the chats to display based on expanded state
     const chatsToDisplay = expandedView 
@@ -22,6 +23,45 @@ export const RecentChatbotChats = ({ maxItems = 2 }) => {
             minute: 'numeric',
             hour12: true
         }).format(date);
+    };
+    
+    // Handle deleting a single chat
+    const handleDeleteChat = (e, chatId) => {
+        e.preventDefault();
+        e.stopPropagation();
+        
+        if (confirm("Are you sure you want to delete this chat? This action cannot be undone.")) {
+            const success = deleteChatSession(chatId);
+            
+            if (success) {
+                setNotification({
+                    type: "success",
+                    message: "Chat deleted successfully"
+                });
+                
+                // Auto hide notification after 3 seconds
+                setTimeout(() => {
+                    setNotification(null);
+                }, 3000);
+            }
+        }
+    };
+    
+    // Handle deleting all chats
+    const handleDeleteAllChats = () => {
+        const success = deleteAllChatSessions();
+        
+        if (success) {
+            setNotification({
+                type: "success",
+                message: "All chat history deleted successfully"
+            });
+            
+            // Auto hide notification after 3 seconds
+            setTimeout(() => {
+                setNotification(null);
+            }, 3000);
+        }
     };
     
     // If loading, show loading state
@@ -52,17 +92,55 @@ export const RecentChatbotChats = ({ maxItems = 2 }) => {
     // Display chat history
     return (
         <div className="rounded-xl bg-white p-6 shadow-md">
+            {/* Notification */}
+            {notification && (
+                <div 
+                    className={`fixed top-4 right-4 z-50 flex items-center gap-2 rounded-lg p-3 pr-4 shadow-md transition-all ${
+                        notification.type === "success" ? "bg-green-100 text-green-800" : "bg-red-100 text-red-800"
+                    }`}
+                >
+                    {notification.type === "success" ? (
+                        <div className="flex items-center">
+                            <div className="mr-2 rounded-full bg-green-200 p-1">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                    <polyline points="20 6 9 17 4 12"></polyline>
+                                </svg>
+                            </div>
+                            {notification.message}
+                        </div>
+                    ) : (
+                        <div className="flex items-center">
+                            <AlertCircle className="mr-2 h-5 w-5" />
+                            {notification.message}
+                        </div>
+                    )}
+                </div>
+            )}
+            
             <div className="mb-4 flex items-center justify-between">
                 <h2 className="text-xl font-bold">Recent Chatbot Chats</h2>
-                {getChatHistory().length > maxItems && (
-                    <button
-                        onClick={() => setExpandedView(!expandedView)}
-                        className="flex items-center gap-1 text-sm font-medium text-[#1e628c] hover:underline"
-                    >
-                        {expandedView ? "Show Less" : "View All"}
-                        <ChevronRight className="h-4 w-4" strokeWidth={2} />
-                    </button>
-                )}
+                <div className="flex items-center gap-2">
+                    {getChatHistory().length > 0 && (
+                        <button
+                            onClick={handleDeleteAllChats}
+                            className="flex items-center gap-1 rounded-md px-2 py-1 text-sm font-medium text-red-600 hover:bg-red-50"
+                            title="Delete all chats"
+                        >
+                            <XCircle className="h-4 w-4" />
+                            <span className="hidden sm:inline">Delete All</span>
+                        </button>
+                    )}
+                    
+                    {getChatHistory().length > maxItems && (
+                        <button
+                            onClick={() => setExpandedView(!expandedView)}
+                            className="flex items-center gap-1 text-sm font-medium text-[#1e628c] hover:underline"
+                        >
+                            {expandedView ? "Show Less" : "View All"}
+                            <ChevronRight className="h-4 w-4" strokeWidth={2} />
+                        </button>
+                    )}
+                </div>
             </div>
             
             <div className="space-y-4">
@@ -86,6 +164,13 @@ export const RecentChatbotChats = ({ maxItems = 2 }) => {
                             
                             {/* Show conversation stats as badges */}
                             <div className="flex gap-2">
+                                <button
+                                    onClick={(e) => handleDeleteChat(e, chat.id)}
+                                    className="rounded-full p-1 text-slate-400 hover:bg-red-50 hover:text-red-500"
+                                    title="Delete this chat"
+                                >
+                                    <Trash2 className="h-4 w-4" />
+                                </button>
                                 <span className="flex items-center gap-1 rounded-full bg-slate-200 px-2 py-1 text-xs font-medium text-slate-700">
                                     <span>{chat.summary.userMsgCount}</span> 
                                     <span className="hidden sm:inline">questions</span>
