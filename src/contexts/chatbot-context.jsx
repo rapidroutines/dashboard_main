@@ -6,6 +6,8 @@ const ChatbotContext = createContext({
     chatHistory: [],
     addChatSession: () => {},
     getChatHistory: () => [],
+    deleteChatSession: () => {},
+    deleteAllChatSessions: () => {},
     isLoading: false,
 });
 
@@ -44,6 +46,10 @@ export const ChatbotProvider = ({ children }) => {
                 if (chatHistory.length > 0) {
                     localStorage.setItem(`chatbot_history_data`, JSON.stringify(chatHistory));
                     console.log("Saved chatbot history to storage:", chatHistory.length);
+                } else {
+                    // Remove the item from localStorage if the history is empty
+                    localStorage.removeItem(`chatbot_history_data`);
+                    console.log("Removed chatbot history from storage (empty)");
                 }
             } catch (error) {
                 console.error("Error saving chatbot history to storage:", error);
@@ -109,6 +115,50 @@ export const ChatbotProvider = ({ children }) => {
         return true;
     };
 
+    // Delete a specific chat session by ID
+    const deleteChatSession = (sessionId) => {
+        if (!sessionId) return false;
+        
+        setChatHistory(prevHistory => {
+            const updatedHistory = prevHistory.filter(session => session.id !== sessionId);
+            
+            // Update in localStorage immediately
+            try {
+                if (updatedHistory.length > 0) {
+                    localStorage.setItem(`chatbot_history_data`, JSON.stringify(updatedHistory));
+                } else {
+                    localStorage.removeItem(`chatbot_history_data`);
+                }
+                console.log("Updated chatbot history in storage after deletion:", updatedHistory.length);
+            } catch (error) {
+                console.error("Error saving updated chat history to storage:", error);
+            }
+            
+            return updatedHistory;
+        });
+        
+        return true;
+    };
+    
+    // Delete all chat sessions
+    const deleteAllChatSessions = () => {
+        if (confirm("Are you sure you want to delete all chat history? This action cannot be undone.")) {
+            setChatHistory([]);
+            
+            // Remove from localStorage immediately
+            try {
+                localStorage.removeItem(`chatbot_history_data`);
+                console.log("Removed all chatbot history from storage");
+            } catch (error) {
+                console.error("Error removing chat history from storage:", error);
+            }
+            
+            return true;
+        }
+        
+        return false;
+    };
+
     // Get chat history with optional filtering
     const getChatHistory = (count = null) => {
         if (!chatHistory || chatHistory.length === 0) return [];
@@ -123,6 +173,8 @@ export const ChatbotProvider = ({ children }) => {
                 chatHistory,
                 addChatSession,
                 getChatHistory,
+                deleteChatSession,
+                deleteAllChatSessions,
                 isLoading,
             }}
         >
