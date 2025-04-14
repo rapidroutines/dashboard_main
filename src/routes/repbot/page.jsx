@@ -185,14 +185,9 @@ const RepBotPage = () => {
                 />
             </div>
             
-            {/* Bottom notification bar (similar to chatbot page) */}
-            <div className="fixed bottom-0 left-0 right-0 bg-gray-100 border-t border-gray-300 p-2 text-sm text-gray-600 flex justify-between items-center">
-                <div className="text-center flex-1">
-                    Please allow 1-2 minutes for repbot to become active.
-                </div>
-                <div className="text-center flex-1">
-                    Your exercises will be saved automatically.
-                </div>
+            {/* Updated bottom message to match chatbot style */}
+            <div className="text-center text-sm text-slate-600 mt-6">
+                <p>Please allow 1-2 minutes for RepBot to become active. Your exercises will be saved automatically.</p>
             </div>
         </div>
     );
