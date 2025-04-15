@@ -48,22 +48,23 @@ export const ExerciseLog = ({ maxItems = 5 }) => {
                 groups.set(groupKey, {
                     id: groupKey,
                     exerciseType: typeKey,
-                    count: 0,
-                    totalReps: 0,
+                    count: 1,
+                    totalReps: exercise.count,
                     timestamp: exercise.timestamp,
                     exercises: []
                 });
+            } else {
+                const group = groups.get(groupKey);
+                group.totalReps += exercise.count;
+                
+                // Always use the most recent timestamp
+                if (new Date(exercise.timestamp) > new Date(group.timestamp)) {
+                    group.timestamp = exercise.timestamp;
+                }
             }
             
             const group = groups.get(groupKey);
-            group.count += 1;
-            group.totalReps += exercise.count;
             group.exercises.push(exercise);
-            
-            // Always use the most recent timestamp
-            if (new Date(exercise.timestamp) > new Date(group.timestamp)) {
-                group.timestamp = exercise.timestamp;
-            }
         });
         
         // Convert map to array and sort by timestamp (newest first)
@@ -119,7 +120,7 @@ export const ExerciseLog = ({ maxItems = 5 }) => {
     const handleDeleteExerciseGroup = (e, exerciseGroup) => {
         e.stopPropagation();
         
-        if (confirm(`Are you sure you want to delete all ${exerciseGroup.count} ${formatExerciseType(exerciseGroup.exerciseType)} sessions from ${new Date(exerciseGroup.timestamp).toLocaleDateString()}?`)) {
+        if (confirm(`Are you sure you want to delete the ${formatExerciseType(exerciseGroup.exerciseType)} session with ${exerciseGroup.totalReps} reps from ${new Date(exerciseGroup.timestamp).toLocaleDateString()}?`)) {
             // Delete each exercise in the group
             let deleteSuccess = true;
             exerciseGroup.exercises.forEach(exercise => {
@@ -131,7 +132,7 @@ export const ExerciseLog = ({ maxItems = 5 }) => {
             if (deleteSuccess) {
                 setNotification({
                     type: "success",
-                    message: `Deleted ${exerciseGroup.count} ${formatExerciseType(exerciseGroup.exerciseType)} sessions`
+                    message: `Deleted ${formatExerciseType(exerciseGroup.exerciseType)} session with ${exerciseGroup.totalReps} reps`
                 });
                 
                 // Refresh the list
@@ -274,13 +275,13 @@ export const ExerciseLog = ({ maxItems = 5 }) => {
                             <div className="flex flex-wrap items-baseline justify-between gap-2">
                                 <p className="font-medium">
                                     x{group.totalReps} {formatExerciseType(group.exerciseType)}
-                                    {group.count > 1 && <span className="ml-1 text-xs text-slate-500">({group.count} sessions)</span>}
+                                    <span className="ml-1 text-xs text-slate-500">(1 session)</span>
                                 </p>
                                 <div className="flex items-center gap-2">
                                     <button
                                         onClick={(e) => handleDeleteExerciseGroup(e, group)}
                                         className="rounded-full p-1 text-slate-400 hover:bg-red-50 hover:text-red-500"
-                                        title="Delete these exercise records"
+                                        title="Delete this exercise record"
                                     >
                                         <Trash2 className="h-3.5 w-3.5" />
                                     </button>
