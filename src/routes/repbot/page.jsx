@@ -143,7 +143,7 @@ const RepBotPage = () => {
     };
 
     return (
-        <div className="flex flex-col h-[calc(100vh-80px)]">
+        <div className="flex flex-col h-[calc(100vh-100px)]">
             {/* Notification */}
             {notification && (
                 <div 
@@ -162,7 +162,7 @@ const RepBotPage = () => {
                 </div>
             )}
             
-            <div className="relative flex-1 w-full overflow-hidden bg-white dark:bg-slate-950 rounded-lg shadow-sm">
+            <div className="relative flex-1 w-full overflow-hidden bg-white dark:bg-slate-950 rounded-lg shadow-sm" style={{ minHeight: "750px" }}>
                 {isLoading && (
                     <div className="absolute inset-0 flex items-center justify-center bg-white/80 dark:bg-slate-950/80 z-10">
                         <div className="flex flex-col items-center text-center">
@@ -186,7 +186,7 @@ const RepBotPage = () => {
             </div>
             
             {/* Updated bottom message with smaller margin to save space */}
-            <div className="text-center text-sm text-slate-600 mt-4 mb-2">
+            <div className="text-center text-sm text-slate-600 mt-3 mb-2">
                 <p>Please allow 1-2 minutes for RepBot to become active. Your exercises will be saved automatically.</p>
             </div>
         </div>
