@@ -143,7 +143,7 @@ const RepBotPage = () => {
     };
 
     return (
-        <div className="flex flex-col h-[calc(100vh-60px)]">
+        <div className="flex flex-col h-[calc(100vh-80px)]">
             {/* Notification */}
             {notification && (
                 <div 
@@ -185,8 +185,8 @@ const RepBotPage = () => {
                 />
             </div>
             
-            {/* Updated bottom message to match chatbot style */}
-            <div className="text-center text-sm text-slate-600 mt-6">
+            {/* Updated bottom message with smaller margin to save space */}
+            <div className="text-center text-sm text-slate-600 mt-4 mb-2">
                 <p>Please allow 1-2 minutes for RepBot to become active. Your exercises will be saved automatically.</p>
             </div>
         </div>
