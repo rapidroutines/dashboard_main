@@ -143,7 +143,7 @@ const RepBotPage = () => {
     };
 
     return (
-        <div className="flex flex-col h-[calc(100vh-100px)]">
+        <div className="flex flex-col h-[calc(100vh-80px)]">
             {/* Notification */}
             {notification && (
                 <div 
@@ -162,7 +162,7 @@ const RepBotPage = () => {
                 </div>
             )}
             
-            <div className="relative flex-1 w-full overflow-hidden bg-white dark:bg-slate-950 rounded-lg shadow-sm" style={{ minHeight: "750px" }}>
+            <div className="relative flex-1 w-full overflow-hidden bg-white dark:bg-slate-950 rounded-lg shadow-sm" style={{ minHeight: "600px" }}>
                 {isLoading && (
                     <div className="absolute inset-0 flex items-center justify-center bg-white/80 dark:bg-slate-950/80 z-10">
                         <div className="flex flex-col items-center text-center">
